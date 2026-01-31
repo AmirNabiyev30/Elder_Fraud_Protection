@@ -1,1 +1,28 @@
-# Elder_Fraud_Protection
+# Project Name: Elder_Fraud_Protection
+
+## Project Pitch
+
+  According the FBI 2023 Elder Fraud Report scams trageting individiuals 60 or older caused over $3.4 billion in losses in 2023. 
+The average person lost approximately $34,000. In our current day Elder Fraud is still a huge issue that is difficult to address. Previously the problem was hard to address as the internet provides so many avenues of communcation for which attackers can utilize to find victims with it being extremly difficult to pinpoint persons of interest. With AI, its even easier for attackers to forge documents and provide fake credentials. My project aims to use AI as an assistant or a first layer of defenese to these attackers. My vision is for AI to screen messages and calls and automatically make intelligent judgements on fraud attempts.
+
+
+## Project Description
+  The project aims to serve a AI assistant that can make intelligent judements for you. For example instead of you manually fitlering spam emails, the AI assistant can do it automatically for you using machine learning and natural langauge processing preventing you from even being exposed to possible attacks. Many protection softwares today not intelligent enough to make decisions leaving full power in the persons hands. For example phone screening software can prompt callers to provide credentials but it leaves the users to make decisions on whether to accept calls or not. More specifcally the platform operates by continuously monitoring communication attempts and performing analysis to detect red flags such as urgency manipulation, impersonation attempts, financial coercion, and suspicious document formatting. 
+  
+  
+  
+  In terms of costs, the software will be completely free and open source, this software can help thousands of people save themselves from the dangerous world of tech where speed and profit have stopped people from considering the safety and ethics of the software they create. The assistant will be able to provide reports and confidence scores on whether the fraud attempt is actually scandalous or not
+
+## Primary Users
+
+The main users are intended to be for elderly people however it can be used by anyone
+
+#Features
+
+-
+-
+-
+-
+
+  
+
