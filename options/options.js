@@ -1,0 +1,3 @@
+/*
+Settings page to configure extension settings
+*/
