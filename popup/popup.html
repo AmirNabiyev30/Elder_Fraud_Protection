@@ -1,7 +1,33 @@
+<!-- popup.html -->
 <html>
-  <body>
-    <script src="popup.js"></script>
-    <h1>Elder Fraud Protection</h1>
-    <p>You can see the extracted text by inspecting the console of the current tab you are on</p>
-  </body>
+<head>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="header">
+      <!-- paste the shield SVG from above -->
+      <span class="title">Elder Fraud Protection</span>
+    </div>
+    <p class="subtitle">Scans the current page for potential fraud indicators.</p>
+    <div class="actions">
+      <button id="scanButton" class="scan-btn">Scan Page</button>
+      <div class="toggle-row">
+        <label class="switch">
+          <input type="checkbox" id="autoScanToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">Automatically scan pages</span>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="footer">
+    <div class="status-dot"></div>
+    <span class="status-text">Protection active</span>
+  </div>
+  <script src="popup.js"></script>
+</body>
 </html>
