@@ -13,7 +13,7 @@ function extractText(){
     console.log(text);
 }
 
-//load the intital text from the DOM
+//load the initial text from the DOM
 
 extractText();
 
