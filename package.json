@@ -1,0 +1,13 @@
+{
+  "name": "elder-fraud-protection",
+  "version": "1.0.0",
+  "description": "Chrome extension to protect elderly users from online fraud",
+  "scripts": {
+    "test": "jest --verbose",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.3.0"
+  }
+}

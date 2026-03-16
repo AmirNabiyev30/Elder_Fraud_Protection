@@ -3,27 +3,34 @@ This file is for page specific logic (reading/modifying DOM). This
 will contain our core logic for extracting text (detecting scams).
 */
 
-console.log("Content Script Loaded");
-
-//Script to extract all text from DOM and log it to console
-//Creating a function to extract test from current DOM
-
-function extractText(){
+function extractText() {
     const text = document.body.innerText;
     console.log(text);
+    return text;
 }
 
-//load the intital text from the DOM
+function setupMutationObserver(callback) {
+    let last_url = location.href;
 
-extractText();
-
-//creating a mutation observer to watch for changes in the DOM
-let last_url = location.href
-
-new MutationObserver(() =>{
-        if (location.href !== last_url){
-            last_url = location.href
-            extractText();
+    const observer = new MutationObserver(() => {
+        if (location.href !== last_url) {
+            last_url = location.href;
+            callback();
         }
-    }
-).observe(document, {childList:true, subtree:true});
+    });
+
+    observer.observe(document, { childList: true, subtree: true });
+    return observer;
+}
+
+function init() {
+    console.log("Content Script Loaded");
+    extractText();
+    setupMutationObserver(extractText);
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { extractText, setupMutationObserver, init };
+} else {
+    init();
+}
