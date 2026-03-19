@@ -4,7 +4,7 @@ console.log("Popup")
 const autoScanToggle = document.getElementById('autoScanToggle');
 const statusDot = document.querySelector('.status-dot');
 const mainBtn = document.getElementById('scanButton');
-
+const hello = "hello"
 
 autoScanToggle.addEventListener('change', () => {
   if (autoScanToggle.checked) {
