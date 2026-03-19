@@ -23,6 +23,14 @@ function setupMutationObserver(callback) {
     return observer;
 }
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'extractText') {
+        sendResponse({ text: extractText() });
+    }
+    return true;
+});
+
+
 function init() {
     console.log("Content Script Loaded");
     extractText();
