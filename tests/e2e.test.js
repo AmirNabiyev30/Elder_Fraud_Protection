@@ -5,7 +5,7 @@ const extensionPath = path.resolve(__dirname, '..');
 
 test('popup loads and scan button is visible', async () => {
     const context = await chromium.launchPersistentContext('', {
-        headless: true,
+        headless: false,
         args: [
             `--disable-extensions-except=${extensionPath}`,
             `--load-extension=${extensionPath}`
