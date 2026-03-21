@@ -23,14 +23,26 @@ function setupMutationObserver(callback) {
     return observer;
 }
 
+function handleMessage(message, sender, sendResponse) {
+    if (message.action === 'scan') {
+        const text = extractText();
+        sendResponse({ success: true, text: text });
+    }
+    return true;
+}
+
 function init() {
     console.log("Content Script Loaded");
     extractText();
     setupMutationObserver(extractText);
+
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+        chrome.runtime.onMessage.addListener(handleMessage);
+    }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { extractText, setupMutationObserver, init };
+    module.exports = { extractText, setupMutationObserver, init, handleMessage };
 } else {
     init();
 }
