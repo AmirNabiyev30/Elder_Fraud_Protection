@@ -35,14 +35,35 @@ npx jest tests/content.test.js
 npx jest tests/manifest.test.js
 ```
 
+### Run end-to-end tests
+
+```bash
+npm run test:e2e
+```
+
+This launches a real Chromium browser with the extension loaded and tests the popup UI.
+
 ## Test Structure
 
-All tests live in the `tests/` directory:
+### Unit Tests (`tests/`)
 
 | File | What it covers |
 |------|----------------|
 | `content.test.js` | `extractText()`, `setupMutationObserver()`, and `init()` from `content.js` |
 | `manifest.test.js` | Validates `manifest.json` structure, permissions, and file references |
+| `popup.test.js` | `initPopup()` toggle behavior and error handling for missing DOM elements |
+
+### Integration Tests (`tests/`)
+
+| File | What it covers |
+|------|----------------|
+| `integration.test.js` | Message passing between `popup.js` and `content.js` — scan flow, error handling |
+
+### End-to-End Tests (`e2e/`)
+
+| File | What it covers |
+|------|----------------|
+| `extension.spec.js` | Loads extension in Chromium, verifies popup UI, toggle interaction |
 
 ## Writing New Tests
 
@@ -66,4 +87,9 @@ const { myFunction } = require('../myModule');
 
 ## CI Pipeline
 
-Tests run automatically on every push and pull request to `main` via GitHub Actions. The workflow is defined in `.github/workflows/test.yml` and tests against Node 18.x and 20.x.
+Tests run automatically on every push and pull request to `main` via GitHub Actions (`.github/workflows/test.yml`):
+
+1. **Unit & Integration Tests** — runs with Node 18.x and 20.x, generates coverage report
+2. **E2E Tests** — installs Playwright Chromium, loads the extension, and runs end-to-end tests
+
+Coverage reports are uploaded as build artifacts on the Node 20.x run.
