@@ -1,6 +1,6 @@
 import {render} from '@testing-library/react';
-import HeroSection from './Herosection';
+import Navbar from '../components/Navbar';
 
 test('renders without crashing', () =>{
-    render(<HeroSection/>);
+    render(<Navbar/>);
 });
