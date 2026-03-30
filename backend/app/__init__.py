@@ -21,3 +21,5 @@ def create_app():
     # This is necessary to avoid waiting loop for files/libraries to be loaded
     from .api import db_api_bp
     app.register_blueprint(db_api_bp)
+
+    return app

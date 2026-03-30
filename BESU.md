@@ -51,7 +51,11 @@ For github repo, you must also add the URI to the secrets and variables, which I
 ## Run Flask application
 To run our flask server, we need to use flask's run command
 ```bash
-flask --app {appname.py} run
+flask --app {backend/appname.py} run
+```
+What worked immediately for me was this
+```bash
+flask --app backend/run.py:app run
 ```
 
 
