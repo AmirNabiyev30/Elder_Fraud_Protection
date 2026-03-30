@@ -3,9 +3,6 @@ This markdown file will be continuously updated with the intent to be a clear an
 
 
 ## Things to Add
-* ~~How to install Flask and Flask CORS~~
-* ~~How to connect via .env (Not included, intentional git ignore)~~
-* ~~How to add necessary pieces of the .env to the github repo via settings > secrets and variables > Actions~~
 * My surface level understanding on adding to the mongodb test suite
 
 
@@ -34,7 +31,7 @@ pip install -r backend/requirements.txt
 
 Manual install
 ```bash
-pip install pymongo python-dotenv flask flask-cors
+pip install pymongo python-dotenv flask flask-cors flask-pymongo
 ```
 
 
@@ -49,3 +46,21 @@ MONGO_URI={Ask for the uniform resource identifier}
 # FLASK_DEBUG=1 
 ```
 For github repo, you must also add the URI to the secrets and variables, which I will/have done already
+
+
+## Useful documentation
+https://github.com/pallets/flask/blob/main/README.md
+
+
+https://flask.palletsprojects.com/en/stable/
+
+
+https://flask-cors.readthedocs.io/en/latest/api.html
+
+
+https://flask-pymongo.readthedocs.io/en/latest/
+
+
+## Atlas and IPs [Dev Note]
+This is less of a tutorial and more of a note for the devs:
+>We can open our db to accept any IP, but only once we have a really good password.
