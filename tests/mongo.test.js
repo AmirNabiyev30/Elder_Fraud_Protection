@@ -22,7 +22,7 @@ describe('MongoDB Atlas Integration', () => {
 
   test('Database should be reachable and responsive', async () => {
     const start = Date.now();
-    await fetch(`${BASE_URL}/`);
+    await fetch(`${BASE_URL}/api/status`);
     const duration = Date.now() - start;
     
     expect(duration).toBeLessThan(2000);
