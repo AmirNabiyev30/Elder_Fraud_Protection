@@ -1,17 +1,12 @@
-import Navbar from './components/Navbar'
-import HeroSection from './components/Herosection'
-import ScanSection from './components/ScanSection'
-import Footer from './components/Footer'
+import Home from './pages/Home.jsx'
+import { Routes, Route } from 'react-router-dom'
 import "./App.css"
 
 function App() {
   return (
-    <>
-      <Navbar/>
-      <HeroSection/>
-      <ScanSection/>
-      <Footer/>
-    </>
+    <Routes>
+      <Route path ="/" element = {<Home/>}/>
+    </Routes>
   )
 }
 
