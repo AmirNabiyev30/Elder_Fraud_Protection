@@ -1,6 +1,5 @@
 console.log("Popup")
 
-
 const autoScanToggle = document.getElementById('autoScanToggle');
 const statusDot = document.querySelector('.status-dot');
 const mainBtn = document.getElementById('scanButton');
@@ -14,18 +13,26 @@ autoScanToggle.addEventListener('change', () => {
 });
 
 mainBtn.addEventListener("click", () => {
+  const container = document.getElementById('results-container');
+  const resultsText = document.getElementById('results-text');
+
+  container.style.display = 'block';
+  resultsText.textContent = 'Scanning...';
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'extractText' }, (response) => {
-          if (chrome.runtime.lastError || !response) return;
-          let results = document.getElementById('results');
-          if (!results) {
-              results = document.createElement('p');
-              results.id = 'results';
-              results.style = 'font-size:11px; max-height:200px; overflow-y:auto; white-space:pre-wrap; padding:8px;';
-              document.querySelector('.popup-container').appendChild(results);
+    const tabId = tabs[0].id;
+
+    chrome.scripting.executeScript(
+      { target: { tabId }, files: ['content.js'] },
+      () => {
+        chrome.tabs.sendMessage(tabId, { action: 'extractText' }, (response) => {
+          if (chrome.runtime.lastError || !response) {
+            resultsText.textContent = 'Error: ' + (chrome.runtime.lastError?.message || 'No response');
+            return;
           }
-          results.textContent = response.text.trim().slice(0, 1000);
-      });
+          resultsText.textContent = response.text.trim().slice(0, 1000);
+        });
+      }
+    );
   });
 });
-
