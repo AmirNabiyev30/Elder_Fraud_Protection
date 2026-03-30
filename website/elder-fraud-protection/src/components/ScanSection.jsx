@@ -22,7 +22,7 @@ function ScanSection() {
             </label>
             <textarea
               className="w-full bg-white border-none rounded-lg p-6 text-lg text-[#191b22] placeholder-[#727781] focus:ring-2 focus:ring-[#27609d]/40 transition-all resize-none shadow-sm"
-              placeholder="e.g. Dear Valued Customer, your account has been compromised. Please click here to verify your identity immediately..."
+              placeholder="e.g. Dear Valued Customer, your account has been compromised and locked. Please click here to verify your identity and send a wire transfer immediately. bit.ly/secure-verify-993"
             />
           </div>
 
