@@ -48,6 +48,13 @@ MONGO_URI={Ask for the uniform resource identifier}
 For github repo, you must also add the URI to the secrets and variables, which I will/have done already
 
 
+## Run Flask application
+To run our flask server, we need to use flask's run command
+```bash
+flask --app {appname.py} run
+```
+
+
 ## Useful documentation
 https://github.com/pallets/flask/blob/main/README.md
 
