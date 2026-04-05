@@ -2,8 +2,9 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import { validateName, validateEmail } from "../utils/validators";
 
-function RegisterPage() {
+function SignUpPage() {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -34,14 +35,7 @@ function RegisterPage() {
 // Posted by C. Lee, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-04-05, License - CC BY-SA 4.0
 
-    function validateEmail(email) {
-        var regex = /\S+@\S+\.\S+/;
-        return regex.test(email);
-    }
-    function validateName(name){
-        var regex = /^[A-Za-z]+$/;
-        return regex.test(name);
-    }
+    
 
     const validateInputs = () => {
 
@@ -222,4 +216,4 @@ function RegisterPage() {
     );
     }
 
-export default RegisterPage; 
+export default SignUpPage; 
