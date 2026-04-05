@@ -22,7 +22,10 @@ function RegisterPage() {
         setConfirmPassword("");
         }
         else{
-            alert("Please correct the errors in the form before submitting.");
+            const submitErrorElement = document.getElementById("submit-error");
+            submitErrorElement.classList.remove("hidden");
+            submitErrorElement.classList.add("text-red-500");
+            console.log("All fields are required.");
         }
     };
 
@@ -35,12 +38,21 @@ function RegisterPage() {
         var regex = /\S+@\S+\.\S+/;
         return regex.test(email);
     }
+    function validateName(name){
+        var regex = /^[A-Za-z]+$/;
+        return regex.test(name);
+    }
 
     const validateInputs = () => {
-        if (!fullName || !email || !phone || !password || !confirmPassword) {
-        alert("Please fill in all fields.");
+
+        //Name Format Validation
+        if (!validateName(fullName)) {
+        const nameErrorElement = document.getElementById("name-error");
+        nameErrorElement.classList.remove("hidden");
+        console.log("Invalid name. Please enter a valid full name.");
         return false;
         }
+        
         //Email Format Validation
         if (!validateEmail(email)) {
         const emailErrorElement = document.getElementById("email-error");
@@ -57,8 +69,6 @@ function RegisterPage() {
             console.log("Passwords do not match.");
             return false;
         }
-
-
         return true;
     };
 
@@ -102,6 +112,9 @@ function RegisterPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     />
+                    <div id="name-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                        <p>Invalid name. Please enter a valid full name.</p>
+                    </div>
                 </div>
 
                 {/* Email Input */}
@@ -185,6 +198,9 @@ function RegisterPage() {
                     Continue
                     <span className="text-lg">→</span>
                 </button>
+                <div id = "submit-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                    <p> Please correct the errors in the form before submitting.</p>
+                </div>
                 </div>
 
                 <div className="pt-4 text-center">
