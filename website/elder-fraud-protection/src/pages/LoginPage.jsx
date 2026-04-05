@@ -3,7 +3,7 @@ import { IoShieldCheckmark } from "react-icons/io5";
 import { MdMenu, MdVisibility, MdLock } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-
+import { Link } from "react-router-dom";
 
 
 function LoginPage(){
@@ -87,12 +87,12 @@ const [showPassword, setShowPassword] = useState(false);
 
             <div className="pt-4 text-center">
               <p className="text-[#424750] mb-4">Don't have an account yet?</p>
-              <a
+              <Link
                 className="inline-flex items-center justify-center w-full h-14 bg-[#e7e7f1] text-[#191b22] font-bold text-lg rounded-lg hover:bg-[#e1e2ec] transition-colors"
-                href="#"
+                to="/sign-up"
               >
                 Create an Account
-              </a>
+              </Link>
             </div>
           </div>
         </div>
