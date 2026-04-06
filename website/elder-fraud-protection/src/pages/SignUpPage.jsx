@@ -100,13 +100,14 @@ function SignUpPage() {
                     <input
                     className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
                     id="full_name"
+                    data-testid="full-name-input"
                     name="full_name"
                     placeholder="Enter your full legal name"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     />
-                    <div id="name-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                    <div id="name-error" data-testid="name-error" className="hidden text-sm text-[#424750]/80 mt-1">
                         <p>Invalid name. Please enter a valid full name.</p>
                     </div>
                 </div>
@@ -119,13 +120,14 @@ function SignUpPage() {
                     <input
                     className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
                     id="email"
+                    data-testid="email-input"
                     name="email"
                     placeholder="name@example.com"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     />
-                    <div id="email-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                    <div id="email-error" data-testid="email-error" className="hidden text-sm text-[#424750]/80 mt-1">
                         <p>Please enter a valid email address.</p>
                     </div>
                 </div>
@@ -138,6 +140,7 @@ function SignUpPage() {
                     <input
                     className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
                     id="password"
+                    data-testid="password-input"
                     name="password"
                     placeholder="Create a strong password"
                     type="password"
@@ -154,6 +157,7 @@ function SignUpPage() {
                     <input
                     className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
                     id="confirm_password"
+                    data-testid="confirm-password-input"
                     name="confirm_password"
                     placeholder="Confirm your password"
                     type="password"
@@ -174,6 +178,7 @@ function SignUpPage() {
                     <input
                     className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
                     id="phone"
+                    data-testid="phone-input"
                     name="phone"
                     placeholder="+1 (555) 000-0000"
                     type="tel"
@@ -184,15 +189,16 @@ function SignUpPage() {
 
                 {/* Continue Button */}
                 <button
+                    id = "submit-button"
                     className="w-full h-14 bg-gradient-to-br from-[#003461] to-[#004b87] text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
-                    disabled={!fullName || !email || !phone}
+                    disabled={!fullName || !email || !password || !confirmPassword||!phone}
                     onClick={handleSubmit}
                 >
                     Continue
                     <span className="text-lg">→</span>
                 </button>
-                <div id = "submit-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                <div id = "submit-error" data-testid="submit-error" className="hidden text-sm text-[#424750]/80 mt-1">
                     <p> Please correct the errors in the form before submitting.</p>
                 </div>
                 </div>
@@ -200,6 +206,7 @@ function SignUpPage() {
                 <div className="pt-4 text-center">
                 <p className="text-[#424750] mb-4">Already have an account?</p>
                 <Link
+                    data-testid="signin-link"
                     className="inline-flex items-center justify-center w-full h-14 bg-[#e7e7f1] text-[#191b22] font-bold text-lg rounded-lg hover:bg-[#e1e2ec] transition-colors"
                     to="/login"
                 >
