@@ -121,6 +121,29 @@ test('submit error message is visible when invalid inputs are submitted', () =>{
     expect(submitError).not.toHaveClass("hidden");  
 });
 
+//Testing that upon rendering the signup page, and having correct inputs, we get a console log of form data and that the success alert is visible
+test('successful submission shows success alert', () =>{
+    renderWithRouter(<SignUpPage/>);
+    const logSpy = vi.spyOn(console, 'log');
+    //pull input fields by test id
+    const nameInput = screen.getByTestId("full-name-input");
+    const emailInput = screen.getByTestId("email-input");
+    const passwordInput = screen.getByTestId("password-input");
+    const confirmPasswordInput = screen.getByTestId("confirm-password-input");
+    const phoneInput = screen.getByTestId("phone-input");
+    const submitButton = screen.getByRole('button', { name: /continue/i });
+    //have to change fields
+    fireEvent.change(nameInput, { target: { value: "John Doe" } });
+    fireEvent.change(emailInput, { target: { value: "example@email.com" } });
+    fireEvent.change(passwordInput, { target: { value: "password123" } });
+    fireEvent.change(confirmPasswordInput, { target: { value: "password123" } });
+    fireEvent.change(phoneInput, { target: { value: "+1 (555) 000-0000" } });
+    fireEvent.click(submitButton);
+    expect(logSpy).toHaveBeenCalledWith({ fullName: "John Doe", email: "example@email.com", password: "password123", phone: "+1 (555) 000-0000" });
+    logSpy.mockRestore();
+});
+
+
 //Testing that after rendering clicking the sign in button takes you to the login page
 test('clicking sign in button takes you to login page', () =>{
     renderWithRouter(<SignUpPage/>);
