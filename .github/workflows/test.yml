@@ -51,13 +51,12 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
-      - name: Upload coverage report
+       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report-node-${{ matrix.node-version }}
           path: coverage/
-
-  e2e:
+     e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -66,12 +65,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+          working-directory: website/elder-fraud-protection
 
       - name: Install dependencies
         run: npm install
+        working-directory: website/elder-fraud-protection
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
+        working-directory: website/elder-fraud-protection
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
