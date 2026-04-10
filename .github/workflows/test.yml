@@ -1,15 +1,16 @@
 name: Run Tests
-on:
+on: 
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [18.x, 20.x]
     steps:
       - uses: actions/checkout@v4
 
@@ -21,17 +22,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: website/elder-fraud-protection
 
-      - name: Run unit and integration tests
-        run: npm run test
-        working-directory: website/elder-fraud-protection
+      - name: Run unit and integration tests with coverage
+        run: npm run test:coverage
 
-      - name: Upload test results
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-node-${{ matrix.node-version }}
-          path: website/elder-fraud-protection/test-results/
+          name: coverage-report-node-${{ matrix.node-version }}
+          path: coverage/
 
   e2e:
     runs-on: ubuntu-latest
@@ -42,19 +41,39 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          working-directory: website/elder-fraud-protection
 
       - name: Install dependencies
         run: npm install
-        working-directory: website/elder-fraud-protection
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
-        working-directory: website/elder-fraud-protection
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
 
-      - name: Run E2E tests with virtual display
-        run: xvfb-run npx playwright test
-        working-directory: website/elder-fraud-protection
+      - name: Set up python
+        run: |
+          python -m pip install --upgrade pip
+          pip install flask flask-cors pymongo python-dotenv 
+      
+      - name: Start Flask App in Background
+        env: 
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          # nohup keeps the process running; > directs our logs (Good for debugging) 
+          nohup python backend/run.py > flask_log.txt 2>&1 & 
+
+      - name: Wait for Flask to start
+        run: sleep 5
+
+      - name: Run E2E tests with virtual display (With Flask Server)
+        env:
+          FLASK_URL: https://127.0.0.1:5000
+        run: xvfb-run npm run test:e2e
+      
+      - name: Upload Flask Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flask-logs
+          path: flask_log.txt
