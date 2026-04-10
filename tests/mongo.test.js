@@ -5,6 +5,13 @@
 const BASE_URL = process.env.FLASK_URL || 'http://127.0.0.1:5000';
 
 describe('MongoDB Atlas Integration', () => {
+  test('Flask server should be reachable and responsive', async () => {
+    const start = Date.now();
+    await fetch(`${BASE_URL}/`);
+    const duration = Date.now() - start;
+    
+    expect(duration).toBeLessThan(2000);
+  });
   
   test('Flask should return a successful MongoDB connection status', async () => {
     // We can change the end of that url to test different "endpoints"
@@ -18,13 +25,5 @@ describe('MongoDB Atlas Integration', () => {
         status: "online",
         database: "connected" 
     });
-  });
-
-  test('Database should be reachable and responsive', async () => {
-    const start = Date.now();
-    await fetch(`${BASE_URL}/`);
-    const duration = Date.now() - start;
-    
-    expect(duration).toBeLessThan(2000);
   });
 });
