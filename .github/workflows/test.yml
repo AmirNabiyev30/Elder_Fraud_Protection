@@ -39,6 +39,8 @@ jobs:
         run: sleep 5 
 
       - name: Run unit and integration tests with coverage
+        env:
+          FLASK_URL: https://127.0.0.1:5000
         run: npm run test:coverage
 
       - name: Upload coverage report
