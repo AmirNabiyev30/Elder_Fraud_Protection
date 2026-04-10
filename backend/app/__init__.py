@@ -19,7 +19,8 @@ def create_app():
     CORS(app)
 
     # This is necessary to avoid waiting loop for files/libraries to be loaded
+    # (Because we are using factory pattern)
     from .api import db_api_bp
-    app.register_blueprint(db_api_bp)
+    app.register_blueprint(db_api_bp, url_prefix='/api')
 
     return app
