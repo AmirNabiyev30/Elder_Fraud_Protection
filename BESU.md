@@ -72,6 +72,3 @@ https://flask-cors.readthedocs.io/en/latest/api.html
 https://flask-pymongo.readthedocs.io/en/latest/
 
 
-## Atlas and IPs [Dev Note]
-This is less of a tutorial and more of a note for the devs:
->We can open our db to accept any IP, but only once we have a really good password.
