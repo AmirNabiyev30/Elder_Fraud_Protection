@@ -41,6 +41,7 @@ jobs:
       - name: Run unit and integration tests with coverage
         env:
           FLASK_URL: https://127.0.0.1:5000
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
       - name: Upload coverage report
