@@ -1,9 +1,10 @@
 name: Run Tests
-on:
+on: 
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -21,7 +22,28 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Set up python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      
+      - name: Start Flask App in Background
+        env: 
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          # nohup keeps the process running; > directs our logs (Good for debugging) 
+          nohup python -u backend/run.py > flask_log.txt 2>&1 & 
+
+      - name: Wait for Flask to start and Verify
+        run: | 
+          sleep 5 
+          curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
+
       - name: Run unit and integration tests with coverage
+        env:
+          # Ensure we're using the right version, http vs https lol
+          FLASK_URL: http://127.0.0.1:5000
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
       - name: Upload coverage report
@@ -49,5 +71,33 @@ jobs:
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
 
-      - name: Run E2E tests with virtual display
+      - name: Set up python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt 
+      
+      - name: Start Flask App in Background
+        env: 
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          # nohup keeps the process running; > directs our logs (Good for debugging) 
+          nohup python backend/run.py > flask_log.txt 2>&1 & 
+
+      - name: Wait for Flask to start and Verify
+        run: | 
+          sleep 5 
+          curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
+
+
+      - name: Run E2E tests with virtual display (With Flask Server)
+        env:
+          # Ensure we're using the right version, http vs https lol
+          FLASK_URL: http://127.0.0.1:5000
         run: xvfb-run npm run test:e2e
+      
+      - name: Upload Flask Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flask-logs
+          path: flask_log.txt
