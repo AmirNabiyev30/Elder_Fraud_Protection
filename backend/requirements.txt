@@ -4,3 +4,5 @@ flask-cors==6.0.2
 pymongo==4.16.0
 flask-pymongo==3.0.1
 python-dotenv==1.2.2
+scikit-learn
+pandas
