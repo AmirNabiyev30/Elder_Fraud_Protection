@@ -1,2 +1,42 @@
-"""this exists to be the api sheet for interacting with our model
-which at the time I assume will be cloud hosted"""
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, 'balanced_spam.csv')
+
+def train_model():
+    df = pd.read_csv(DATA_PATH)
+
+    
+    df = df.dropna(subset=['text', 'label'])
+
+    X = df['text']
+    y = df['label']
+
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Vectorize the text using TF-IDF
+    vectorizer = TfidfVectorizer(stop_words='english', max_features=10000)
+    X_train_vec = vectorizer.fit_transform(X_train)
+    X_test_vec = vectorizer.transform(X_test)
+
+    
+    model = LogisticRegression(max_iter=1000)
+    model.fit(X_train_vec, y_train)
+
+    # Print accuracy report to console on startup
+    y_pred = model.predict(X_test_vec)
+    print("Model trained successfully")
+    print(classification_report(y_test, y_pred, target_names=['legitimate', 'phishing', 'spam']))
+
+    return model, vectorizer
+
+# Train once when the module is first imported
+model, vectorizer = train_model()
