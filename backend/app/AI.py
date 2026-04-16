@@ -40,3 +40,18 @@ def train_model():
 
 # Train once when the module is first imported
 model, vectorizer = train_model()
+
+LABELS = {
+    0: 'legitimate',
+    1: 'phishing',
+    2: 'spam'
+}
+
+def analyze_text(text):
+    vectorized_text = vectorizer.transform([text])
+    pred_label = model.predict(vectorized_text)[0]
+    pred_score = model.predict_proba(vectorized_text)[0][pred_label]
+    return{
+        "pred_label" : LABELS[pred_label],
+        "pred_score" : round(float(pred_score) * 100, 2)
+    }

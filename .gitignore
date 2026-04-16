@@ -3,4 +3,4 @@ coverage/
 .DS_Store
 *.log
 backend/.env
-backend/__pycache__/
+backend/balanced_spam.csv
