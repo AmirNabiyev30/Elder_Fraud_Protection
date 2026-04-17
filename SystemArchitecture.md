@@ -66,4 +66,28 @@ The design shows each USER is the central record connected to both behavior and 
 
 ## Flow Diagram
 
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant WC as Web Client (Chrome Extension)
+    participant WS as Web Server (planned)
+    participant AS as App Server (Flask API)
+    participant DB as MongoDB Atlas
+
+    U->>WC: Click "Scan"
+    WC->>WC: Extract page/email text
+    WC->>WS: POST /scan {text, source}
+    WS->>AS: POST /api/analyze {text, source}
+    AS->>DB: Read trusted contacts and history
+    DB-->>AS: User context documents
+    AS->>AS: Run fraud scoring logic
+    AS->>DB: Save scan_event, fraud_analysis, alerts
+    DB-->>AS: Write acknowledged
+    AS-->>WS: 200 OK {risk_score, verdict, reasons}
+    WS-->>WC: 200 OK {risk_score, verdict, reasons}
+    WC-->>U: Show result and warning state
+```
+
+This sample sequence call diagram starts at the user. Upon using the chrome extension to scan, the extension extracts page/email text. The chrome extensions sends a post request /scan to our web server (planned). The web server sends a post request /api/analyze to our app server (Flask). The app server then queries to read the users' trusted contacts and history and saves the current scan for future reference. The app server then runs the fraud scoring logic. Upon successful execution of the scoring logic, the app server sends a 200 OK back to the web server, which directs to the chrome extension. Lastly, the risk score is shown to the user through either the chrome extension/website.
+
 
