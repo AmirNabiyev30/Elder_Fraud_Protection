@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: Root unit/integration tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,14 +20,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          working-directory: website/elder-fraud-protection
-          working-directory: website/elder-fraud-protection
 
-      - name: Install dependencies
+      - name: Use Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install root dependencies
         run: npm install
-        working-directory: website/elder-fraud-protection
 
-      - name: Set up python
+      - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
@@ -37,47 +40,50 @@ jobs:
         run: |
           nohup python -u backend/run.py > flask_log.txt 2>&1 &
 
-      - name: Wait for Flask to start and Verify
+      - name: Wait for Flask to start and verify
         run: |
           sleep 5
           curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
 
-      - name: Run unit and integration tests with coverage
+      - name: Run root unit/integration tests with coverage
         env:
           # Ensure we're using the right version, http vs https lol
           FLASK_URL: http://127.0.0.1:5000
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
-      - name: Upload test results
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-node-${{ matrix.node-version }}
-          path: website/elder-fraud-protection/test-results/
+          name: coverage-report-node-${{ matrix.node-version }}
+          path: coverage/
 
-  e2e:
+  extension-e2e:
+    name: Chrome extension end-to-end tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          working-directory: website/elder-fraud-protection
 
-      - name: Install dependencies
+      - name: Use Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install root dependencies
         run: npm install
-        working-directory: website/elder-fraud-protection
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
-        working-directory: website/elder-fraud-protection
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
 
-      - name: Set up python
+      - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
@@ -89,12 +95,12 @@ jobs:
           # nohup keeps the process running; > directs our logs (Good for debugging) 
           nohup python backend/run.py > flask_log.txt 2>&1 & 
 
-      - name: Wait for Flask to start and Verify
+      - name: Wait for Flask to start and verify
         run: |
           sleep 5
           curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
 
-      - name: Run E2E tests with virtual display (With Flask Server)
+      - name: Run extension E2E tests with virtual display
         env:
           # Ensure we're using the right version, http vs https lol
           FLASK_URL: http://127.0.0.1:5000
@@ -108,6 +114,7 @@ jobs:
           path: flask_log.txt
 
   website-tests:
+    name: Website unit and integration tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -121,9 +128,32 @@ jobs:
         working-directory: website/elder-fraud-protection
         run: npm install
 
-      - name: Run website tests
+      - name: Run website unit/integration tests
         working-directory: website/elder-fraud-protection
         run: npm test
-      - name: Run E2E tests with virtual display
-        run: xvfb-run npx playwright test
+
+  website-e2e:
+    name: Website Playwright end-to-end tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install website dependencies
         working-directory: website/elder-fraud-protection
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: website/elder-fraud-protection
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+
+      - name: Run website e2e tests
+        working-directory: website/elder-fraud-protection
+        run: xvfb-run npx playwright test
