@@ -15,6 +15,10 @@ vectorizer = None
 def train_model():
     global model, vectorizer
 
+    if not os.path.exists(DATA_PATH):
+        print(f"Warning: Dataset not found at {DATA_PATH}. AI features disabled.")
+        return None, None
+
     df = pd.read_csv(DATA_PATH)
     
     df = df.dropna(subset=['text', 'label'])
