@@ -8,9 +8,14 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, 'balanced_spam.csv')
 
-def train_model():
-    df = pd.read_csv(DATA_PATH)
 
+model = None
+vectorizer = None
+
+def train_model():
+    global model, vectorizer
+
+    df = pd.read_csv(DATA_PATH)
     
     df = df.dropna(subset=['text', 'label'])
 
@@ -48,6 +53,9 @@ LABELS = {
 }
 
 def analyze_text(text):
+    if model is None or vectorizer is None:
+        return {"error": "Model not available - dataset missing"}
+
     vectorized_text = vectorizer.transform([text])
     pred_label = model.predict(vectorized_text)[0]
     pred_score = model.predict_proba(vectorized_text)[0][pred_label]
