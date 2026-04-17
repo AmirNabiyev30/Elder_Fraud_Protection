@@ -65,15 +65,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          working-directory: website/elder-fraud-protection
 
       - name: Install dependencies
         run: npm install
-        working-directory: website/elder-fraud-protection
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
-        working-directory: website/elder-fraud-protection
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
