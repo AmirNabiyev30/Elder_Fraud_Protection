@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,9 +20,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           working-directory: website/elder-fraud-protection
+          working-directory: website/elder-fraud-protection
 
       - name: Install dependencies
         run: npm install
+        working-directory: website/elder-fraud-protection
 
       - name: Set up python
         run: |
@@ -47,11 +49,11 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
-      - name: Upload coverage report
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-node-${{ matrix.node-version }}
-          path: coverage/
+          name: test-results-node-${{ matrix.node-version }}
+          path: website/elder-fraud-protection/test-results/
 
   e2e:
     runs-on: ubuntu-latest
@@ -62,12 +64,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+          working-directory: website/elder-fraud-protection
 
       - name: Install dependencies
         run: npm install
+        working-directory: website/elder-fraud-protection
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
+        working-directory: website/elder-fraud-protection
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
@@ -119,3 +124,6 @@ jobs:
       - name: Run website tests
         working-directory: website/elder-fraud-protection
         run: npm test
+      - name: Run E2E tests with virtual display
+        run: xvfb-run npx playwright test
+        working-directory: website/elder-fraud-protection
