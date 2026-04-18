@@ -87,7 +87,6 @@ jobs:
           fi
 
       - name: Start Flask App in Background
-        if: steps.check_dataset.outputs.exists == 'true'
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
@@ -95,20 +94,17 @@ jobs:
           nohup python backend/run.py > flask_log.txt 2>&1 &
 
       - name: Wait for Flask to start and Verify
-        if: steps.check_dataset.outputs.exists == 'true'
         run: |
           sleep 5 
           curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
 
       - name: Run E2E tests with virtual display (With Flask Server)
-        if: steps.check_dataset.outputs.exists == 'true'
         env:
           # Ensure we're using the right version, http vs https lol
           FLASK_URL: http://127.0.0.1:5000
         run: xvfb-run npm run test:e2e
 
       - name: Skip E2E tests
-        if: steps.check_dataset.outputs.exists == 'false'
         run: echo "Skipping E2E tests - dataset not available in CI environment"
 
       - name: Upload Flask Logs on Failure

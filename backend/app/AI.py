@@ -7,6 +7,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, 'balanced_spam.csv')
+TEST_DATA_PATH = os.path.join(BASE_DIR, 'test_dataset.csv')
 
 
 model = None
@@ -15,11 +16,17 @@ vectorizer = None
 def train_model():
     global model, vectorizer
 
-    if not os.path.exists(DATA_PATH):
-        print(f"Warning: Dataset not found at {DATA_PATH}. AI features disabled.")
+    if os.path.exists(DATA_PATH):
+        print("Using full dataset")
+        path = DATA_PATH
+    elif os.path.exists(TEST_DATA_PATH):
+        print("Warning: Full dataset not found, using test dataset")
+        path = TEST_DATA_PATH
+    else:
+        print("Warning: No dataset found. AI features disabled.")
         return None, None
 
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(path)
     
     df = df.dropna(subset=['text', 'label'])
 
