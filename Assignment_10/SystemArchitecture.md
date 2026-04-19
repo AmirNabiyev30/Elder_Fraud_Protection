@@ -1,3 +1,3 @@
 # Elder Fraud Protection Architecture
 
-! [Alt Text](Diagram 1.png)
+! [Diagram 1](Diagram1.png)
