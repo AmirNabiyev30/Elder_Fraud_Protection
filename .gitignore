@@ -2,5 +2,7 @@ node_modules/
 coverage/
 .DS_Store
 *.log
-__pycache__
-.env 
+backend/.env
+backend/balanced_spam.csv
+*__pycache__
+*.env 
