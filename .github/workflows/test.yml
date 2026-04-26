@@ -37,12 +37,12 @@ jobs:
       - name: Wait for Flask to start and Verify
         run: | 
           sleep 5 
-          curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
+          curl -v http://127.0.0.1:8000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
 
       - name: Run unit and integration tests with coverage
         env:
           # Ensure we're using the right version, http vs https lol
-          FLASK_URL: http://127.0.0.1:5000
+          FLASK_URL: http://127.0.0.1:8000
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run test:coverage
 
@@ -86,13 +86,13 @@ jobs:
       - name: Wait for Flask to start and Verify
         run: | 
           sleep 5 
-          curl -v http://127.0.0.1:5000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
+          curl -v http://127.0.0.1:8000/api/status || (echo "FLASK CRASHED:" && cat flask_log.txt && exit 1)
 
 
       - name: Run E2E tests with virtual display (With Flask Server)
         env:
           # Ensure we're using the right version, http vs https lol
-          FLASK_URL: http://127.0.0.1:5000
+          FLASK_URL: http://127.0.0.1:8000
         run: xvfb-run npm run test:e2e
       
       - name: Upload Flask Logs on Failure
