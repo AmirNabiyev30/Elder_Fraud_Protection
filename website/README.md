@@ -20,3 +20,28 @@ If you are developing a production application, we recommend using TypeScript wi
 To run the website locally, you can run 
 
                 npm run dev
+
+## Clerk Auth Setup
+
+The frontend now uses Clerk through custom sign-up and login pages.
+
+Create a `.env` file in `./website` with:
+
+```
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+The Flask backend should also define these environment variables (for token verification):
+
+```
+CLERK_JWKS_URL=https://your-clerk-domain/.well-known/jwks.json
+# Optional but recommended:
+CLERK_ISSUER=https://your-clerk-domain
+CLERK_AUDIENCE=your_api_audience
+```
+
+You can validate backend auth parsing by calling:
+
+- `GET /api/auth/context` without an `Authorization` header (should return `is_authenticated: false`)
+- `GET /api/auth/context` with a Clerk bearer token (should return `is_authenticated: true` when verification succeeds)
