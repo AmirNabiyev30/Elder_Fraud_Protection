@@ -18,7 +18,7 @@ beforeEach(() => {
 
 describe('popup and content.js message passing', () => {
 
-    test('popup displays text returned by content.js when scan button is clicked', () => {
+    test('popup displays text returned by content.js when scan button is clicked', async () => {
         // Simulate content.js responding with page text
         document.body.innerText = 'Hello from the page';
         const pageText = extractText();
