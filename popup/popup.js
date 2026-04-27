@@ -16,7 +16,14 @@ autoScanToggle.addEventListener('change', () => {
 mainBtn.addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, { action: 'extractText' }, (response) => {
-          if (chrome.runtime.lastError || !response || !response.text) return;
+          if (chrome.runtime.lastError) {
+              console.error('Error:', chrome.runtime.lastError.message);
+              return;
+          }
+          
+          if (!response || !response.text) {
+              return;
+          }
           let results = document.getElementById('results');
           if (!results) {
               results = document.createElement('p');
@@ -46,4 +53,3 @@ mainBtn.addEventListener("click", () => {
       });
   });
 });
-
