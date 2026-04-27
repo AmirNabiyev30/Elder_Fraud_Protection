@@ -4,3 +4,5 @@ coverage/
 *.log
 backend/.env
 backend/balanced_spam.csv
+*__pycache__
+*.env 
