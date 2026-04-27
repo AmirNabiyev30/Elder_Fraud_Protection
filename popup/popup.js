@@ -24,7 +24,25 @@ mainBtn.addEventListener("click", () => {
               results.style = 'font-size:11px; max-height:200px; overflow-y:auto; white-space:pre-wrap; padding:8px;';
               document.querySelector('.popup-container').appendChild(results);
           }
-          results.textContent = response.text.trim().slice(0, 1000);
+          results.textContent = "Scanning...";
+
+           // Send the email text to the Flask backend
+        fetch('http://127.0.0.1:5000/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: response.text })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            results.textContent = `Error: ${data.error}`;
+            return;
+          }
+          results.textContent = `Result: ${data.pred_label} (${data.pred_score}% confidence)`;
+        })
+        .catch(err => {
+          results.textContent = 'Error: Could not reach the backend. Is Flask running?';
+        });
       });
   });
 });
