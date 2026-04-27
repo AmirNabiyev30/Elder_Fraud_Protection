@@ -1,5 +1,7 @@
 const { extractText } = require('../content');
 
+global.fetch = jest.fn();
+
 beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
@@ -16,7 +18,7 @@ beforeEach(() => {
 
 describe('popup and content.js message passing', () => {
 
-    test('popup displays text returned by content.js when scan button is clicked', () => {
+    test('popup displays text returned by content.js when scan button is clicked', async () => {
         // Simulate content.js responding with page text
         document.body.innerText = 'Hello from the page';
         const pageText = extractText();
@@ -33,11 +35,23 @@ describe('popup and content.js message passing', () => {
 
         require('../popup/popup');
 
+        global.fetch.mockResolvedValueOnce({
+        json: async () => ({ 
+            pred_label: 'legitimate',
+            pred_score: 95
+            })
+        });
+
+
         document.getElementById('scanButton').click();
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
 
         const results = document.getElementById('results');
         expect(results).not.toBeNull();
-        expect(results.textContent).toBe(pageText.trim().slice(0, 1000));
+        //expect(results.textContent).toBe(pageText.trim().slice(0, 1000));
+        expect(results.textContent).toContain('Result:')
     });
 
     test('popup handles error gracefully when content.js fails to respond', () => {
