@@ -1,5 +1,7 @@
 const { extractText } = require('../content');
 
+global.fetch = jest.fn();
+
 beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
@@ -34,6 +36,9 @@ describe('popup and content.js message passing', () => {
         require('../popup/popup');
 
         document.getElementById('scanButton').click();
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
 
         const results = document.getElementById('results');
         expect(results).not.toBeNull();
