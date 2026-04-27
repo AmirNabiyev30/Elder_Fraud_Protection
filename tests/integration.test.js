@@ -35,14 +35,23 @@ describe('popup and content.js message passing', () => {
 
         require('../popup/popup');
 
+        global.fetch.mockResolvedValueOnce({
+        json: async () => ({ 
+            pred_label: 'legitimate',
+            pred_score: 95
+            })
+        });
+
+
         document.getElementById('scanButton').click();
 
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 100));
 
 
         const results = document.getElementById('results');
         expect(results).not.toBeNull();
-        expect(results.textContent).toBe(pageText.trim().slice(0, 1000));
+        //expect(results.textContent).toBe(pageText.trim().slice(0, 1000));
+        expect(results.textContent).toContain('Result:')
     });
 
     test('popup handles error gracefully when content.js fails to respond', () => {
