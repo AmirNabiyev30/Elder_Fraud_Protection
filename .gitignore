@@ -6,3 +6,26 @@ backend/.env
 backend/balanced_spam.csv
 *__pycache__
 *.env 
+
+# Terraform state files 
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Plan files (optional but recommended)
+tfplan
+*.tfplan
+
+# Override files (local-only configs)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration
+.terraformrc
+terraform.rc
