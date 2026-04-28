@@ -1,0 +1,38 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [test]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Build deployment zip
+        run: |
+          ZIP_NAME="app_deploy-${{ github.sha }}.zip"
+          zip -r "$ZIP_NAME" \
+            backend \
+            frontend \
+            .ebextensions \
+            requirements.txt \
+            package.json \
+            package-lock.json || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-deploy-artifact
+          path: app_deploy-${{ github.sha }}.zip
