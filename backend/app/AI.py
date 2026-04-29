@@ -7,10 +7,26 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, 'balanced_spam.csv')
+TEST_DATA_PATH = os.path.join(BASE_DIR, 'test_dataset.csv')
+
+
+model = None
+vectorizer = None
 
 def train_model():
-    df = pd.read_csv(DATA_PATH)
+    global model, vectorizer
 
+    if os.path.exists(DATA_PATH):
+        print("Using full dataset")
+        path = DATA_PATH
+    elif os.path.exists(TEST_DATA_PATH):
+        print("Warning: Full dataset not found, using test dataset")
+        path = TEST_DATA_PATH
+    else:
+        print("Warning: No dataset found. AI features disabled.")
+        return None, None
+
+    df = pd.read_csv(path)
     
     df = df.dropna(subset=['text', 'label'])
 
@@ -40,3 +56,21 @@ def train_model():
 
 # Train once when the module is first imported
 model, vectorizer = train_model()
+
+LABELS = {
+    0: 'legitimate',
+    1: 'phishing',
+    2: 'spam'
+}
+
+def analyze_text(text):
+    if model is None or vectorizer is None:
+        return {"error": "Model not available - dataset missing"}
+
+    vectorized_text = vectorizer.transform([text])
+    pred_label = model.predict(vectorized_text)[0]
+    pred_score = model.predict_proba(vectorized_text)[0][pred_label]
+    return{
+        "pred_label" : LABELS[pred_label],
+        "pred_score" : round(float(pred_score) * 100, 2)
+    }

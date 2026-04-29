@@ -1,8 +1,9 @@
 """this exists to be the db api sheet"""
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify, g,request
 from . import mongo
 from bson import json_util
 import json
+from .AI import analyze_text
 
 db_api_bp = Blueprint('api', __name__)
 
@@ -53,3 +54,20 @@ def get_auth_context():
         "auth_user": auth_user,
         "auth_error": auth_error
     }), 200
+    
+@db_api_bp.route('/scan', methods=['POST'])
+def scan_email():
+    try:
+        data = request.get_json()
+        if not data or 'text' not in data:
+            return jsonify({"error": "No text provided"}), 400
+
+        text = data['text']
+        if not text.strip():
+            return jsonify({"error": "Email text is empty"}), 400
+
+        result = analyze_text(text)
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": "Scan failed", "details": str(e)}), 500
