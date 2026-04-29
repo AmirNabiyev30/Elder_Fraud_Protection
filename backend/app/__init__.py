@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_pymongo import PyMongo
 import os
 from dotenv import load_dotenv
+from .auth import load_auth_context
 
 mongo = PyMongo()
 
@@ -16,7 +17,11 @@ def create_app():
     mongo.init_app(app)
 
     # Enable CORS
-    CORS(app)
+    CORS(app, allow_headers=["Content-Type", "Authorization"])
+
+    @app.before_request
+    def attach_auth_context():
+        load_auth_context()
 
     # This is necessary to avoid waiting loop for files/libraries to be loaded
     # (Because we are using factory pattern)

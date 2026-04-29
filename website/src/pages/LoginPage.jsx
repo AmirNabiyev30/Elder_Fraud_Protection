@@ -1,14 +1,61 @@
-import { useState } from "react";
-import { IoShieldCheckmark } from "react-icons/io5";
-import { MdMenu, MdVisibility, MdLock } from "react-icons/md";
+import { useEffect, useState } from "react";
+import { MdVisibility } from "react-icons/md";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth, useSignIn } from "@clerk/clerk-react";
+import { fetchAuthContext } from "../lib/authApi";
 
 
 function LoginPage(){
 const [showPassword, setShowPassword] = useState(false);
-   // src/components/SignInPage.js
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [errorMessage, setErrorMessage] = useState("");
+const [isSubmitting, setIsSubmitting] = useState(false);
+const { signIn, isLoaded, setActive } = useSignIn();
+const { getToken, isLoaded: isAuthLoaded, isSignedIn } = useAuth();
+const navigate = useNavigate();
+
+useEffect(() => {
+  if (isAuthLoaded && isSignedIn) {
+    navigate("/dashboard");
+  }
+}, [isAuthLoaded, isSignedIn, navigate]);
+
+const handleLogin = async (event) => {
+  event.preventDefault();
+
+  if (!isLoaded) {
+    setErrorMessage("Authentication is still loading. Please try again.");
+    return;
+  }
+
+  setErrorMessage("");
+  setIsSubmitting(true);
+
+  try {
+    const result = await signIn.create({
+      identifier: email,
+      password,
+    });
+
+    if (result.status === "complete") {
+      await setActive({ session: result.createdSessionId });
+      await fetchAuthContext(getToken);
+      navigate("/dashboard");
+      return;
+    }
+
+    setErrorMessage("Additional authentication steps are required to sign in.");
+  } catch (error) {
+    const clerkError = error?.errors?.[0]?.longMessage || error?.errors?.[0]?.message;
+    setErrorMessage(clerkError || "Unable to sign in. Please verify your credentials.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
   return (
     <div className="bg-[#faf8ff] text-[#191b22] min-h-screen flex flex-col">
       {/* TopNavBar */}
@@ -32,7 +79,7 @@ const [showPassword, setShowPassword] = useState(false);
 
         {/* Login Card */}
         <div className="w-full max-w-md bg-white p-10 rounded-xl shadow-sm border border-[#c2c6d1]/20">
-          <div className="space-y-8">
+          <form className="space-y-8" onSubmit={handleLogin}>
             <div className="space-y-6">
               {/* Email Input */}
               <div className="space-y-2">
@@ -45,6 +92,9 @@ const [showPassword, setShowPassword] = useState(false);
                   name="email"
                   placeholder="e.g. name@email.com"
                   type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
                 />
               </div>
 
@@ -65,6 +115,9 @@ const [showPassword, setShowPassword] = useState(false);
                     name="password"
                     placeholder="••••••••"
                     type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required
                   />
                   <button
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-[#424750]"
@@ -80,9 +133,13 @@ const [showPassword, setShowPassword] = useState(false);
               <button
                 className="w-full h-14 bg-gradient-to-br from-[#003461] to-[#004b87] text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
                 type="submit"
+                disabled={isSubmitting || !email || !password}
               >
-                Sign In
+                {isSubmitting ? "Signing In..." : "Sign In"}
               </button>
+              {errorMessage ? (
+                <p className="text-red-600 text-sm">{errorMessage}</p>
+              ) : null}
             </div>
 
             <div className="pt-4 text-center">
@@ -94,7 +151,7 @@ const [showPassword, setShowPassword] = useState(false);
                 Create an Account
               </Link>
             </div>
-          </div>
+          </form>
         </div>
 
       </main>

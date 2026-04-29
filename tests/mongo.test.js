@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const BASE_URL = process.env.FLASK_URL || 'http://127.0.0.1:5000';
+const BASE_URL = process.env.FLASK_URL || 'http://127.0.0.1:8000';
 
 describe('MongoDB Atlas Integration', () => {
   test('Flask server should be reachable and responsive', async () => {

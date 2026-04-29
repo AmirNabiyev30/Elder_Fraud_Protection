@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth, useSignUp } from "@clerk/clerk-react";
+import { fetchAuthContext } from "../lib/authApi";
 
 function RegisterPage() {
     const [fullName, setFullName] = useState("");
@@ -9,23 +11,51 @@ function RegisterPage() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
+    const [pendingVerification, setPendingVerification] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
+    const { signUp, isLoaded, setActive } = useSignUp();
+    const { getToken, isLoaded: isAuthLoaded, isSignedIn } = useAuth();
 
-    const handleSubmit = () => {
-        if (validateInputs()) {
-        console.log({ fullName, email, phone, password });
-        alert("Registration successful! (This is a demo, no actual account is created.)");
-        // Reset form fields
-        setFullName("");
-        setEmail("");
-        setPhone("");
-        setPassword("");
-        setConfirmPassword("");
+    useEffect(() => {
+        if (isAuthLoaded && isSignedIn) {
+            navigate("/dashboard");
         }
-        else{
-            const submitErrorElement = document.getElementById("submit-error");
-            submitErrorElement.classList.remove("hidden");
-            submitErrorElement.classList.add("text-red-500");
-            console.log("All fields are required.");
+    }, [isAuthLoaded, isSignedIn, navigate]);
+
+    const handleSubmit = async () => {
+        if (!validateInputs()) {
+            setErrorMessage("Please correct the form errors before continuing.");
+            return;
+        }
+
+        if (!isLoaded) {
+            setErrorMessage("Authentication is still loading. Please try again.");
+            return;
+        }
+
+        setErrorMessage("");
+        setIsSubmitting(true);
+
+        try {
+            await signUp.create({
+                emailAddress: email,
+                password,
+                unsafeMetadata: {
+                    fullName,
+                    phone,
+                },
+            });
+
+            await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+            setPendingVerification(true);
+        } catch (error) {
+            const clerkError = error?.errors?.[0]?.longMessage || error?.errors?.[0]?.message;
+            setErrorMessage(clerkError || "Unable to create account. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -34,41 +64,95 @@ function RegisterPage() {
 // Posted by C. Lee, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-04-05, License - CC BY-SA 4.0
 
-    function validateEmail(email) {
+    function validateEmail(emailAddress) {
         var regex = /\S+@\S+\.\S+/;
-        return regex.test(email);
+        return regex.test(emailAddress);
     }
-    function validateName(name){
-        var regex = /^[A-Za-z]+$/;
+
+    function validatePhone(phoneNumber) {
+        var regex = /^[+]?[\d()\-\s]{7,20}$/;
+        return regex.test(phoneNumber);
+    }
+
+    function validateName(name) {
+        var regex = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
         return regex.test(name);
     }
 
+    const clearAllErrors = () => {
+        ["name-error", "email-error", "phone-error", "password-mismatch"].forEach((id) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.add("hidden");
+            }
+        });
+    };
+
+    const showError = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.remove("hidden");
+        }
+    };
+
+    const handleVerificationSubmit = async () => {
+        if (!verificationCode) {
+            setErrorMessage("Enter the verification code sent to your email.");
+            return;
+        }
+
+        setErrorMessage("");
+        setIsSubmitting(true);
+
+        try {
+            const result = await signUp.attemptEmailAddressVerification({
+                code: verificationCode,
+            });
+
+            if (result.status === "complete") {
+                await setActive({ session: result.createdSessionId });
+                await fetchAuthContext(getToken);
+                navigate("/dashboard");
+                return;
+            }
+
+            setErrorMessage("Verification is not complete yet. Please try again.");
+        } catch (error) {
+            const clerkError = error?.errors?.[0]?.longMessage || error?.errors?.[0]?.message;
+            setErrorMessage(clerkError || "Unable to verify your email code.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const validateInputs = () => {
+        clearAllErrors();
 
-        //Name Format Validation
         if (!validateName(fullName)) {
-        const nameErrorElement = document.getElementById("name-error");
-        nameErrorElement.classList.remove("hidden");
-        console.log("Invalid name. Please enter a valid full name.");
-        return false;
-        }
-        
-        //Email Format Validation
-        if (!validateEmail(email)) {
-        const emailErrorElement = document.getElementById("email-error");
-        emailErrorElement.classList.remove("hidden");
-        console.log("Invalid email address.");
-        return false;
-        }
-        //Password and confirm password validation
-        if (password !== confirmPassword) {
-        //alert("Passwords do not match.");
-            const passwordMismatchElement = document.getElementById("password-mismatch");
-
-            passwordMismatchElement.classList.remove("hidden");
-            console.log("Passwords do not match.");
+            showError("name-error");
             return false;
         }
+
+        if (!validateEmail(email)) {
+            showError("email-error");
+            return false;
+        }
+
+        if (!validatePhone(phone)) {
+            showError("phone-error");
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            showError("password-mismatch");
+            return false;
+        }
+
+        if (!password || password.length < 8) {
+            setErrorMessage("Password must be at least 8 characters.");
+            return false;
+        }
+
         return true;
     };
 
@@ -189,18 +273,53 @@ function RegisterPage() {
                 </div>
 
                 {/* Continue Button */}
-                <button
-                    className="w-full h-14 bg-gradient-to-br from-[#003461] to-[#004b87] text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
-                    disabled={!fullName || !email || !phone}
-                    onClick={handleSubmit}
-                >
-                    Continue
-                    <span className="text-lg">→</span>
-                </button>
-                <div id = "submit-error" className="hidden text-sm text-[#424750]/80 mt-1">
-                    <p> Please correct the errors in the form before submitting.</p>
+                {!pendingVerification ? (
+                    <>
+                        <button
+                            className="w-full h-14 bg-gradient-to-br from-[#003461] to-[#004b87] text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            type="button"
+                            disabled={isSubmitting || !fullName || !email || !phone || !password || !confirmPassword}
+                            onClick={handleSubmit}
+                        >
+                            {isSubmitting ? "Creating..." : "Continue"}
+                            <span className="text-lg">→</span>
+                        </button>
+                        {errorMessage ? (
+                            <p className="text-red-600 text-sm">{errorMessage}</p>
+                        ) : null}
+                    </>
+                ) : (
+                    <>
+                        <div className="space-y-2">
+                            <label className="text-[#191b22] font-bold text-lg block" htmlFor="verification_code">
+                                Email Verification Code
+                            </label>
+                            <input
+                                className="w-full h-14 px-5 bg-[#e1e2ec] rounded-lg border-0 focus:ring-2 focus:ring-[#27609d]/40 focus:bg-white transition-all text-[#191b22] text-lg"
+                                id="verification_code"
+                                name="verification_code"
+                                placeholder="Enter code from your email"
+                                type="text"
+                                value={verificationCode}
+                                onChange={(event) => setVerificationCode(event.target.value)}
+                            />
+                        </div>
+                        <button
+                            className="w-full h-14 bg-gradient-to-br from-[#003461] to-[#004b87] text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                            type="button"
+                            disabled={isSubmitting || !verificationCode}
+                            onClick={handleVerificationSubmit}
+                        >
+                            {isSubmitting ? "Verifying..." : "Verify Email"}
+                        </button>
+                        {errorMessage ? (
+                            <p className="text-red-600 text-sm">{errorMessage}</p>
+                        ) : null}
+                    </>
+                )}
                 </div>
+                <div id="phone-error" className="hidden text-sm text-[#424750]/80 mt-1">
+                    <p>Please enter a valid phone number.</p>
                 </div>
 
                 <div className="pt-4 text-center">
