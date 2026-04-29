@@ -1,5 +1,5 @@
 """this exists to be the db api sheet"""
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, g,request
 from . import mongo
 from bson import json_util
 import json
@@ -41,6 +41,19 @@ def get_all_data():
         return jsonify(data), 200
     except Exception as e:
         return jsonify({"error" : "Access denied or collection missing", "details" : str(e)}), 403
+
+
+@db_api_bp.route('/auth/context', methods=['GET'])
+def get_auth_context():
+    auth_user = getattr(g, "auth_user", None)
+    auth_error = getattr(g, "auth_error", None)
+    is_authenticated = getattr(g, "is_authenticated", False)
+
+    return jsonify({
+        "is_authenticated": is_authenticated,
+        "auth_user": auth_user,
+        "auth_error": auth_error
+    }), 200
     
 @db_api_bp.route('/scan', methods=['POST'])
 def scan_email():

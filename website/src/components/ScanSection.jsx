@@ -1,6 +1,6 @@
 // src/components/ScanSection.jsx
 
-import ".././color-scheme.css";
+import "../color-scheme.css";
 import { IoShieldCheckmark } from "react-icons/io5";
 
 function ScanSection() {
