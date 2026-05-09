@@ -25,3 +25,11 @@ export async function fetchAuthContext(getToken) {
     method: 'GET',
   })
 }
+// This function is used to sync the user's profile information with the backend.
+//Sends a POST request to the users sync endpoint with token for the require auth decorator to be satisfied
+export async function syncUserProfile(getToken, userDetails) {
+  return fetchWithClerkToken('/api/users/sync', getToken, {
+    method: 'POST',
+    body: JSON.stringify(userDetails),
+  })
+}

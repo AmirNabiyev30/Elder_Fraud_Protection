@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, useSignUp } from "@clerk/clerk-react";
-import { fetchAuthContext } from "../lib/authApi";
+import { fetchAuthContext, syncUserProfile } from "../lib/authApi";
 
 function RegisterPage() {
     const [fullName, setFullName] = useState("");
@@ -108,9 +108,20 @@ function RegisterPage() {
             const result = await signUp.attemptEmailAddressVerification({
                 code: verificationCode,
             });
-
+            // If verification is successful, set the session and sync profile
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
+                const syncResponse = await syncUserProfile(getToken, {
+                    fullName,
+                    email,
+                    phone,
+                });
+
+                if (!syncResponse.ok) {
+                    const syncError = await syncResponse.json().catch(() => ({}));
+                    throw new Error(syncError.error || "Unable to save your profile.");
+                }
+
                 await fetchAuthContext(getToken);
                 navigate("/dashboard");
                 return;
