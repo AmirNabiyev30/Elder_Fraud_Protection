@@ -1,12 +1,13 @@
 """this exists to be the db api sheet"""
-from flask import Blueprint, jsonify, g,request
-from . import mongo
-from bson import json_util
 import json
-from .AI import analyze_text
 from datetime import datetime
+from bson import json_util
+from flask import Blueprint, jsonify, g, request
+from . import mongo
+from .AI import analyze_text
 
 db_api_bp = Blueprint('api', __name__)
+APP_DB_NAME = "elder-fraud"
 
 @db_api_bp.route('/status', methods=['GET'])
 def get_status():
@@ -71,7 +72,7 @@ def scan_email():
 
         # Save best-effort scan history without making classification depend on Mongo availability.
         try:
-            collection = mongo.db.scans
+            collection = mongo.cx[APP_DB_NAME]["scans"]
             collection.insert_one({
                 "text": text,
                 "result": result,
