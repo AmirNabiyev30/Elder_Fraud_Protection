@@ -5,7 +5,6 @@ from bson import json_util
 from flask import Blueprint, jsonify, g, request
 from . import mongo
 from .AI import analyze_text
-from datetime import datetime
 from .auth import require_auth
 
 db_api_bp = Blueprint('api', __name__)
