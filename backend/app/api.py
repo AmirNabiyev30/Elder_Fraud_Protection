@@ -4,6 +4,7 @@ from . import mongo
 from bson import json_util
 import json
 from .AI import analyze_text
+from datetime import datetime
 
 db_api_bp = Blueprint('api', __name__)
 
@@ -67,6 +68,20 @@ def scan_email():
             return jsonify({"error": "Email text is empty"}), 400
 
         result = analyze_text(text)
+
+        # Save best-effort scan history without making classification depend on Mongo availability.
+        try:
+            collection = mongo.db.scans
+            collection.insert_one({
+                "text": text,
+                "result": result,
+                "timestamp": datetime.now()
+            })
+            result["saved_to_db"] = True
+        except Exception as db_error:
+            result["saved_to_db"] = False
+            result["save_error"] = str(db_error)
+
         return jsonify(result), 200
 
     except Exception as e:
