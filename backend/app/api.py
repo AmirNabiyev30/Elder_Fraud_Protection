@@ -57,7 +57,56 @@ def get_auth_context():
         "auth_user": auth_user,
         "auth_error": auth_error
     }), 200
-    
+
+@db_api_bp.route('/users/sync', methods=['POST'])
+@require_auth
+def sync_user():
+    try:
+        data = request.get_json() or {}
+        full_name = data.get("fullName")
+        email = data.get("email")
+        phone = data.get("phone")
+
+        if not full_name or not email or not phone:
+            return jsonify({
+                "error": "fullName, email, and phone are required"
+            }), 400
+
+        user_id = g.auth_user["user_id"]
+        now = datetime.now()
+        collection = mongo.cx[APP_DB_NAME]["users"]
+
+        collection.update_one(
+            {"clerk_user_id": user_id},
+            {
+                "$set": {
+                    "clerk_user_id": user_id,
+                    "session_id": g.auth_user.get("session_id"),
+                    "issuer": g.auth_user.get("issuer"),
+                    "full_name": full_name,
+                    "email": email,
+                    "phone": phone,
+                    "updated_at": now,
+                },
+                "$setOnInsert": {
+                    "created_at": now,
+                },
+            },
+            upsert=True,
+        )
+
+        saved_user = collection.find_one(
+            {"clerk_user_id": user_id},
+            {"_id": 0},
+        )
+
+        return jsonify({
+            "message": "User synced successfully",
+            "user": saved_user,
+        }), 200
+    except Exception as e:
+        return jsonify({"error": "User sync failed", "details": str(e)}), 500
+
 @db_api_bp.route('/scan', methods=['POST'])
 def scan_email():
     try:
