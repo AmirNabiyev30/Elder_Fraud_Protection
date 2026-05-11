@@ -1,0 +1,49 @@
+name: Terraform Infrastructure
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'terraform/**'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Provision Infrastructure
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
+        if: github.event_name == 'pull_request'
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -no-color
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'

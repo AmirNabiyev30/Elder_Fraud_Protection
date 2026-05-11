@@ -1,0 +1,81 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---- Build the React website ----
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install website dependencies
+        working-directory: website
+        run: npm install
+
+      - name: Build website
+        working-directory: website
+        run: npm run build
+
+      # ---- Package the deployment artifact ----
+      - name: Create deployment package
+        run: |
+          # Generate a unique version label using short commit SHA
+          VERSION_LABEL="ver-$(git rev-parse --short HEAD)-$(date +%s)"
+          echo "VERSION_LABEL=$VERSION_LABEL" >> $GITHUB_ENV
+
+          # Package backend + built website into a zip
+          # Include: backend/, built website, and top-level requirements
+          zip -r "elder-fraud-deploy-${VERSION_LABEL}.zip" \
+            backend/ \
+            -x "backend/__pycache__/*" \
+            -x "backend/tests/*" \
+            -x "backend/example/*"
+
+          echo "DEPLOY_ZIP=elder-fraud-deploy-${VERSION_LABEL}.zip" >> $GITHUB_ENV
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-package
+          path: ${{ env.DEPLOY_ZIP }}
+
+      # ---- Deploy to AWS Elastic Beanstalk ----
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp "${{ env.DEPLOY_ZIP }}" \
+            s3://jxzzzzz-elder-fraud-protection/
+
+      - name: Create application version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name "elder-fraud-protection" \
+            --source-bundle S3Bucket="jxzzzzz-elder-fraud-protection",S3Key="${{ env.DEPLOY_ZIP }}" \
+            --version-label "${{ env.VERSION_LABEL }}" \
+            --description "Deployed from commit $(git rev-parse --short HEAD)" \
+            --region "us-east-1"
+
+      - name: Deploy to environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --environment-name "elder-fraud-protection-env" \
+            --version-label "${{ env.VERSION_LABEL }}" \
+            --region "us-east-1"
