@@ -51,10 +51,3 @@ export async function fetchRecentScans(getToken, limit = 10) {
     method: 'GET',
   })
 }
-
-export async function scanEmail(getToken, text) {
-  return fetchWithClerkToken('/api/scan', getToken, {
-    method: 'POST',
-    body: JSON.stringify({ text }),
-  })
-}
