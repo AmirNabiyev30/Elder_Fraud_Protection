@@ -39,3 +39,15 @@ export async function scanEmail(getToken, text) {
     body: JSON.stringify({ text }),
   })
 }
+
+export async function fetchCurrentUserProfile(getToken) {
+  return fetchWithClerkToken('/api/users/me', getToken, {
+    method: 'GET',
+  })
+}
+
+export async function fetchRecentScans(getToken, limit = 10) {
+  return fetchWithClerkToken(`/api/scans/recent?limit=${limit}`, getToken, {
+    method: 'GET',
+  })
+}
