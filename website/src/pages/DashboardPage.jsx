@@ -77,10 +77,41 @@ function DashboardPage() {
                 </div>
               </div>
 
-              {/* Right Card - Placeholder */}
+              {/* Right Card - Quick Actions & Stats */}
               <div className="flex-1 bg-gradient-to-br from-[#f8f9fa] to-[#f0f2f5] p-6 rounded-lg border border-[#c2c6d1]/20">
-                <div className="flex items-center justify-center h-full text-[#424750]">
-                  <p className="text-center">Additional metrics coming soon...</p>
+                <h2 className="text-[#003461] font-bold text-2xl mb-6 text-center">Quick Stats</h2>
+                <div className="flex flex-col items-center space-y-6">
+                  {/* Stats Grid */}
+                  <div className="w-full grid grid-cols-2 gap-4">
+                    {/* Total Scans */}
+                    <div className="bg-white p-4 rounded-lg text-center border border-[#c2c6d1]/20">
+                      <div className="text-2xl font-bold text-[#003461]">142</div>
+                      <div className="text-xs text-[#424750] font-semibold mt-1">Total Scans</div>
+                    </div>
+
+                    {/* Threats Blocked */}
+                    <div className="bg-white p-4 rounded-lg text-center border border-[#c2c6d1]/20">
+                      <div className="text-2xl font-bold text-[#d32f2f]">12</div>
+                      <div className="text-xs text-[#424750] font-semibold mt-1">Threats Blocked</div>
+                    </div>
+
+                    {/* Security Score */}
+                    <div className="bg-white p-4 rounded-lg text-center border border-[#c2c6d1]/20">
+                      <div className="text-2xl font-bold text-[#4caf50]">92%</div>
+                      <div className="text-xs text-[#424750] font-semibold mt-1">Security Score</div>
+                    </div>
+
+                    {/* Protection Status */}
+                    <div className="bg-white p-4 rounded-lg text-center border border-[#c2c6d1]/20">
+                      <div className="text-2xl font-bold text-[#2196f3]">Active</div>
+                      <div className="text-xs text-[#424750] font-semibold mt-1">Protection</div>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button className="w-full bg-[#003461] hover:bg-[#002147] text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                    Scan Email Now
+                  </button>
                 </div>
               </div>
             </div>
