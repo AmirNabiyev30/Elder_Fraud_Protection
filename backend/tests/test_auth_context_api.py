@@ -18,6 +18,11 @@ class AuthContextEndpointTests(unittest.TestCase):
         self.app.register_blueprint(db_api_bp, url_prefix="/api")
         self.client = self.app.test_client()
 
+    def test_health_check(self):
+        response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"status": "ok"})
+
     def test_auth_context_without_token(self):
         response = self.client.get("/api/auth/context")
         self.assertEqual(response.status_code, 200)

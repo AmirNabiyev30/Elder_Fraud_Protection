@@ -10,6 +10,12 @@ from .auth import require_auth
 db_api_bp = Blueprint('api', __name__)
 APP_DB_NAME = "elder-fraud"
 
+@db_api_bp.route('/health', methods=['GET'])
+def get_health():
+    return jsonify({
+        "status": "ok"
+    }), 200
+
 @db_api_bp.route('/status', methods=['GET'])
 def get_status():
     try:
