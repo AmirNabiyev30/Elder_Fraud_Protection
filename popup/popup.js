@@ -1,6 +1,6 @@
 console.log("Popup")
 
-const apiurl = "http://127.0.0.1:8000"
+const flask_server = "http://127.0.0.1:8000"
 const autoScanToggle = document.getElementById('autoScanToggle');
 const statusDot = document.querySelector('.status-dot');
 const mainBtn = document.getElementById('scanButton');
@@ -34,7 +34,7 @@ mainBtn.addEventListener("click", () => {
           results.textContent = "Scanning...";
 
            // Send the email text to the Flask backend
-        fetch(`${apiurl}/api/scan`, {
+        fetch(`${flask_server}/api/scan`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: response.text })
