@@ -2,7 +2,7 @@ import os
 from functools import wraps
 
 import jwt
-from flask import g, jsonify, request
+from flask import current_app, g, jsonify, request
 from jwt import InvalidTokenError, PyJWKClient
 
 
@@ -79,6 +79,8 @@ def load_auth_context():
 def require_auth(view_func):
     @wraps(view_func)
     def wrapped(*args, **kwargs):
+        if request.method == "OPTIONS":
+            return current_app.make_default_options_response()
         if not getattr(g, "is_authenticated", False):
             return jsonify({"error": "Authentication required"}), 401
         return view_func(*args, **kwargs)
