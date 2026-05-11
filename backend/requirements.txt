@@ -7,3 +7,5 @@ python-dotenv==1.2.2
 scikit-learn
 pandas
 PyJWT==2.10.1
+openai>=1.0.0
+cryptography
