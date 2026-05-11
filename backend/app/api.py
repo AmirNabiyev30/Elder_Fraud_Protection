@@ -1,14 +1,44 @@
 """this exists to be the db api sheet"""
 import json
 from datetime import datetime
+
 from bson import json_util
 from flask import Blueprint, jsonify, g, request
+
 from . import mongo
 from .AI import analyze_text
 from .auth import require_auth
 
 db_api_bp = Blueprint('api', __name__)
 APP_DB_NAME = "elder-fraud"
+
+
+def _get_collection(name):
+    return mongo.cx[APP_DB_NAME][name]
+
+
+def _serialize_document(document):
+    return json.loads(json_util.dumps(document))
+
+
+def _build_scan_stats(scans):
+    counts = {"phishing": 0, "spam": 0, "legitimate": 0}
+    for scan in scans:
+        label = scan.get("pred_label")
+        if label in counts:
+            counts[label] += 1
+
+    total_scans = len(scans)
+    high_risk_count = counts["phishing"] + counts["spam"]
+    latest_scan = scans[0] if scans else None
+
+    return {
+        "total_scans": total_scans,
+        "high_risk_scans": high_risk_count,
+        "counts_by_label": counts,
+        "latest_scan_at": latest_scan.get("timestamp") if latest_scan else None,
+        "latest_scan_label": latest_scan.get("pred_label") if latest_scan else None,
+    }
 
 @db_api_bp.route('/status', methods=['GET'])
 def get_status():
@@ -74,7 +104,7 @@ def sync_user():
 
         user_id = g.auth_user["user_id"]
         now = datetime.now()
-        collection = mongo.cx[APP_DB_NAME]["users"]
+        collection = _get_collection("users")
         set_fields = {
             "clerk_user_id": user_id,
             "session_id": g.auth_user.get("session_id"),
@@ -111,6 +141,40 @@ def sync_user():
     except Exception as e:
         return jsonify({"error": "User sync failed", "details": str(e)}), 500
 
+
+@db_api_bp.route('/users/me', methods=['GET'])
+@require_auth
+def get_current_user():
+    try:
+        user_id = g.auth_user["user_id"]
+        user = _get_collection("users").find_one(
+            {"clerk_user_id": user_id},
+            {"_id": 0},
+        )
+        return jsonify({"user": user}), 200
+    except Exception as e:
+        return jsonify({"error": "Unable to load current user", "details": str(e)}), 500
+
+
+@db_api_bp.route('/scans/recent', methods=['GET'])
+@require_auth
+def get_recent_scans():
+    try:
+        user_id = g.auth_user["user_id"]
+        limit = request.args.get("limit", default=10, type=int)
+        safe_limit = max(1, min(limit, 25))
+        cursor = _get_collection("scans").find(
+            {"clerk_user_id": user_id},
+            {"_id": 0},
+        ).sort("timestamp", -1).limit(safe_limit)
+        scans = _serialize_document(list(cursor))
+        return jsonify({
+            "scans": scans,
+            "stats": _build_scan_stats(scans),
+        }), 200
+    except Exception as e:
+        return jsonify({"error": "Unable to load recent scans", "details": str(e)}), 500
+
 @db_api_bp.route('/scan', methods=['POST'])
 def scan_email():
     try:
@@ -128,11 +192,24 @@ def scan_email():
 
         # Save best-effort scan history without making classification depend on Mongo availability.
         try:
-            collection = mongo.cx[APP_DB_NAME]["scans"]
-            collection.insert_one({
+            collection = _get_collection("scans")
+            scan_document = {
                 "text": text,
-                "result": result,
-                "timestamp": datetime.now()
+                "pred_label": result["pred_label"],
+                "pred_score": result["pred_score"],
+                "summary": result.get("summary"),
+                "red_flags": result.get("red_flags", []),
+                "next_steps": result.get("next_steps", []),
+                "explanation": result.get("explanation"),
+                "ai_used": result.get("ai_used", False),
+                "ai_error": result.get("ai_error"),
+                "timestamp": datetime.now(),
+            }
+            if getattr(g, "is_authenticated", False) and getattr(g, "auth_user", None):
+                scan_document["clerk_user_id"] = g.auth_user["user_id"]
+
+            collection.insert_one({
+                **scan_document
             })
             result["saved_to_db"] = True
         except Exception as db_error:
