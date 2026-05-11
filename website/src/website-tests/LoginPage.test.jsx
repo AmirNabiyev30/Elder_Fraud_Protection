@@ -8,6 +8,7 @@ const signInCreateMock = vi.fn();
 const setActiveMock = vi.fn();
 const getTokenMock = vi.fn();
 const fetchAuthContextMock = vi.fn();
+const syncUserProfileMock = vi.fn();
 let isAuthLoadedMock = true;
 let isSignedInMock = false;
 
@@ -21,6 +22,7 @@ vi.mock("react-router-dom", async () => {
 
 vi.mock("../lib/authApi", () => ({
   fetchAuthContext: (...args) => fetchAuthContextMock(...args),
+  syncUserProfile: (...args) => syncUserProfileMock(...args),
 }));
 
 vi.mock("@clerk/clerk-react", () => ({
@@ -42,6 +44,7 @@ beforeEach(() => {
   setActiveMock.mockReset();
   getTokenMock.mockReset();
   fetchAuthContextMock.mockReset();
+  syncUserProfileMock.mockReset();
   isAuthLoadedMock = true;
   isSignedInMock = false;
 });
@@ -58,12 +61,13 @@ test("renders login page", () => {
   expect(screen.getByLabelText("Password")).toBeTruthy();
 });
 
-test("submits successful sign in and calls backend auth context", async () => {
+test("submits successful sign in and ensures the user exists in MongoDB", async () => {
   signInCreateMock.mockResolvedValue({
     status: "complete",
     createdSessionId: "sess_123",
   });
   setActiveMock.mockResolvedValue(undefined);
+  syncUserProfileMock.mockResolvedValue({ ok: true });
   fetchAuthContextMock.mockResolvedValue({ ok: true });
   getTokenMock.mockResolvedValue("fake_token");
 
@@ -89,6 +93,9 @@ test("submits successful sign in and calls backend auth context", async () => {
   });
 
   expect(setActiveMock).toHaveBeenCalledWith({ session: "sess_123" });
+  expect(syncUserProfileMock).toHaveBeenCalledWith(expect.any(Function), {
+    email: "person@example.com",
+  });
   expect(fetchAuthContextMock).toHaveBeenCalledWith(expect.any(Function));
   expect(navigateMock).toHaveBeenCalledWith("/dashboard");
 });

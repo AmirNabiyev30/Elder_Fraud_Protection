@@ -52,6 +52,7 @@ describe('popup and content.js message passing', () => {
         expect(results).not.toBeNull();
         //expect(results.textContent).toBe(pageText.trim().slice(0, 1000));
         expect(results.textContent).toContain('Result:')
+        expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/api/scan', expect.any(Object));
     });
 
     test('popup handles error gracefully when content.js fails to respond', () => {
