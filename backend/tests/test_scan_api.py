@@ -22,6 +22,18 @@ class ScanEndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json(), {"error": "Email text is empty"})
 
+    def test_scan_returns_503_when_classifier_is_unavailable(self):
+        with patch("backend.app.api.analyze_text", return_value={
+            "error": "Model not available - dataset missing",
+        }):
+            response = self.client.post("/api/scan", json={"text": "hello"})
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.get_json(),
+            {"error": "Model not available - dataset missing"},
+        )
+
     def test_scan_saves_result_when_database_write_succeeds(self):
         scans_collection_mock = MagicMock()
         cluster_mock = MagicMock()

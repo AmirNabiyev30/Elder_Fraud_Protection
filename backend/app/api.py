@@ -123,6 +123,8 @@ def scan_email():
             return jsonify({"error": "Email text is empty"}), 400
 
         result = analyze_text(text)
+        if "error" in result:
+            return jsonify(result), 503
 
         # Save best-effort scan history without making classification depend on Mongo availability.
         try:
