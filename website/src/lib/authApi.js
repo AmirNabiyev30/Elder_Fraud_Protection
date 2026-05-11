@@ -25,3 +25,10 @@ export async function fetchAuthContext(getToken) {
     method: 'GET',
   })
 }
+
+export async function syncUserProfile(getToken, userDetails) {
+  return fetchWithClerkToken('/api/users/sync', getToken, {
+    method: 'POST',
+    body: JSON.stringify(userDetails),
+  })
+}

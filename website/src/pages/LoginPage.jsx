@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, useSignIn } from "@clerk/clerk-react";
-import { fetchAuthContext } from "../lib/authApi";
+import { fetchAuthContext, syncUserProfile } from "../lib/authApi";
 
 
 function LoginPage(){
@@ -42,6 +42,15 @@ const handleLogin = async (event) => {
 
     if (result.status === "complete") {
       await setActive({ session: result.createdSessionId });
+      const syncResponse = await syncUserProfile(getToken, {
+        email,
+      });
+
+      if (!syncResponse.ok) {
+        const syncError = await syncResponse.json().catch(() => ({}));
+        throw new Error(syncError.error || "Unable to sync your profile.");
+      }
+
       await fetchAuthContext(getToken);
       navigate("/dashboard");
       return;
