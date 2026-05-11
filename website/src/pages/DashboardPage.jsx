@@ -123,7 +123,6 @@ function DashboardPage() {
   }
 
   const safetySummary = getSafetySummary(scanStats);
-  const latestScan = recentScans[0];
   const profileName = userProfile?.full_name || "Protected user";
   const profileEmail = userProfile?.email || authContext?.auth_user?.user_id || "Unavailable";
   const profilePhone = userProfile?.phone || "No phone number saved";
