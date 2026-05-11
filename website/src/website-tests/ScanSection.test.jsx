@@ -16,13 +16,13 @@ test("disables analyze button until text is entered", () => {
     </BrowserRouter>,
   );
 
-  expect(screen.getByRole("button", { name: "Analyze Email" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Analyze Email" }).disabled).toBe(true);
 
   fireEvent.change(screen.getByLabelText("Paste email content here"), {
     target: { value: "Please verify your bank account." },
   });
 
-  expect(screen.getByRole("button", { name: "Analyze Email" })).not.toBeDisabled();
+  expect(screen.getByRole("button", { name: "Analyze Email" }).disabled).toBe(false);
 });
 
 test("submits textarea text to the analyze handler", async () => {

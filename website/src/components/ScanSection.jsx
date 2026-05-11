@@ -25,10 +25,14 @@ function ScanSection({ onAnalyze, isSubmitting, errorMessage, isSignedIn, showLo
 
         <div className="space-y-6">
           <div className="">
-            <label className="block font-semibold text-[#424750] mb-2">
+            <label
+              className="block font-semibold text-[#424750] mb-2"
+              htmlFor="scan-email-text"
+            >
               Paste email content here
             </label>
             <textarea
+              id="scan-email-text"
               className="w-full bg-white border-none rounded-lg p-6 text-lg text-[#191b22] placeholder-[#727781] focus:ring-2 focus:ring-[#27609d]/40 transition-all resize-none shadow-sm"
               placeholder="e.g. Dear Valued Customer, your account has been compromised and locked. Please click here to verify your identity and send a wire transfer immediately. bit.ly/secure-verify-993"
               value={text}
