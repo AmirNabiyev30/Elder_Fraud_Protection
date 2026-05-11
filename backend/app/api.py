@@ -67,27 +67,31 @@ def sync_user():
         email = data.get("email")
         phone = data.get("phone")
 
-        if not full_name or not email or not phone:
+        if not email:
             return jsonify({
-                "error": "fullName, email, and phone are required"
+                "error": "email is required"
             }), 400
 
         user_id = g.auth_user["user_id"]
         now = datetime.now()
         collection = mongo.cx[APP_DB_NAME]["users"]
+        set_fields = {
+            "clerk_user_id": user_id,
+            "session_id": g.auth_user.get("session_id"),
+            "issuer": g.auth_user.get("issuer"),
+            "email": email,
+            "updated_at": now,
+        }
+
+        if full_name:
+            set_fields["full_name"] = full_name
+        if phone:
+            set_fields["phone"] = phone
 
         collection.update_one(
             {"clerk_user_id": user_id},
             {
-                "$set": {
-                    "clerk_user_id": user_id,
-                    "session_id": g.auth_user.get("session_id"),
-                    "issuer": g.auth_user.get("issuer"),
-                    "full_name": full_name,
-                    "email": email,
-                    "phone": phone,
-                    "updated_at": now,
-                },
+                "$set": set_fields,
                 "$setOnInsert": {
                     "created_at": now,
                 },

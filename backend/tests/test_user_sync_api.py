@@ -23,7 +23,7 @@ class UserSyncEndpointTests(unittest.TestCase):
         self.assertEqual(response.get_json(), {"error": "Authentication required"})
 
     @patch("backend.app.auth._verify_token")
-    def test_sync_requires_all_profile_fields(self, verify_token_mock):
+    def test_sync_requires_email(self, verify_token_mock):
         verify_token_mock.return_value = (
             {"sub": "user_123", "sid": "sess_123", "iss": "issuer_123"},
             None,
@@ -31,15 +31,50 @@ class UserSyncEndpointTests(unittest.TestCase):
 
         response = self.client.post(
             "/api/users/sync",
-            json={"fullName": "Jane Doe", "email": "jane@example.com"},
+            json={"fullName": "Jane Doe"},
             headers={"Authorization": "Bearer valid_token"},
         )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.get_json(),
-            {"error": "fullName, email, and phone are required"},
+            {"error": "email is required"},
         )
+
+    @patch("backend.app.auth._verify_token")
+    def test_sync_upserts_user_with_email_only_login_payload(self, verify_token_mock):
+        verify_token_mock.return_value = (
+            {"sub": "user_123", "sid": "sess_123", "iss": "issuer_123"},
+            None,
+        )
+        users_collection_mock = MagicMock()
+        users_collection_mock.find_one.return_value = {
+            "clerk_user_id": "user_123",
+            "session_id": "sess_123",
+            "issuer": "issuer_123",
+            "email": "jane@example.com",
+        }
+        cluster_mock = MagicMock()
+        cluster_mock.__getitem__.return_value = {"users": users_collection_mock}
+
+        with patch.object(api.mongo, "cx", cluster_mock):
+            response = self.client.post(
+                "/api/users/sync",
+                json={"email": "jane@example.com"},
+                headers={"Authorization": "Bearer valid_token"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data["message"], "User synced successfully")
+        self.assertEqual(data["user"]["email"], "jane@example.com")
+        users_collection_mock.update_one.assert_called_once()
+        update_args, update_kwargs = users_collection_mock.update_one.call_args
+        self.assertEqual(update_args[0], {"clerk_user_id": "user_123"})
+        self.assertEqual(update_args[1]["$set"]["email"], "jane@example.com")
+        self.assertNotIn("full_name", update_args[1]["$set"])
+        self.assertNotIn("phone", update_args[1]["$set"])
+        self.assertTrue(update_kwargs["upsert"])
 
     @patch("backend.app.auth._verify_token")
     def test_sync_upserts_user_when_database_write_succeeds(self, verify_token_mock):
