@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 
 
 
-function Navbar(){
+function Navbar({ onSignOut, isSigningOut = false }){
 
 
     return (
@@ -34,9 +34,19 @@ function Navbar(){
           </a>
         </nav>
  
-        <Link to="/login" className="primary-gradient text-black px-6 py-2 rounded-lg font-semibold transition-transform active:scale-95">
-          Sign In
-        </Link>
+        {onSignOut ? (
+          <button
+            onClick={onSignOut}
+            disabled={isSigningOut}
+            className="primary-gradient text-black px-6 py-2 rounded-lg font-semibold transition-transform active:scale-95 disabled:opacity-60"
+          >
+            {isSigningOut ? "Signing out..." : "Sign Out"}
+          </button>
+        ) : (
+          <Link to="/login" className="primary-gradient text-black px-6 py-2 rounded-lg font-semibold transition-transform active:scale-95">
+            Sign In
+          </Link>
+        )}
       </div>
     </header>
     )

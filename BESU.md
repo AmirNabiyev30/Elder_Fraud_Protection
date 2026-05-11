@@ -53,9 +53,9 @@ To run our flask server, we need to use flask's run command
 ```bash
 flask --app {backend/appname.py} run
 ```
-What worked immediately for me was this
+If you're on Ubuntu and/or use UV
 ```bash
-flask --app backend/run.py:app run
+uv run flask --app backend/run.py run --host 0.0.0.0 --port 8000
 ```
 
 

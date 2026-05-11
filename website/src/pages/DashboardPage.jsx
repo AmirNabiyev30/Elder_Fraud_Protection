@@ -1,6 +1,6 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { fetchAuthContext } from "../lib/authApi";
@@ -41,31 +41,57 @@ function DashboardPage() {
 
   return (
     <div className="bg-[#faf8ff] text-[#191b22] min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-grow flex flex-col items-center justify-center px-6 pt-32 pb-20">
-        <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-sm border border-[#c2c6d1]/20">
-          <h1 className="text-[#003461] font-extrabold text-4xl mb-4">Temporary Dashboard</h1>
-          <p className="text-[#424750] mb-6">
-            You are signed in. This is a temporary destination after login/sign up.
-          </p>
-          <pre className="bg-[#f2f3fd] p-4 rounded-lg text-sm overflow-auto">
-            {JSON.stringify(authContext, null, 2)}
-          </pre>
-          <div className="mt-6 flex gap-3">
-            <Link className="text-[#003461] font-semibold hover:underline" to="/">
-              Go to Home
-            </Link>
-            <Link className="text-[#003461] font-semibold hover:underline" to="/login">
-              Go to Login
-            </Link>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              disabled={isSigningOut}
-              className="text-[#003461] font-semibold hover:underline disabled:opacity-60"
-            >
-              {isSigningOut ? "Signing out..." : "Sign Out"}
-            </button>
+      <Navbar onSignOut={handleSignOut} isSigningOut={isSigningOut} />
+      <main className="flex-grow flex flex-col items-center justify-center px-6 pt-8 pb-20">
+        <div className="w-full max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-[#c2c6d1]/20">
+          <div className="mb-8">
+            <h1 className="text-[#003461] font-extrabold text-4xl mb-2">Dashboard</h1>
+            <p className="text-[#424750]">
+              Welcome back. Here's your account information.
+            </p>
+          </div>
+
+          {/* Safety Metrics Section */}
+          <div className="mb-8">
+            <div className="flex gap-6">
+              {/* Left Card - Safety Status */}
+              <div className="flex-1 bg-gradient-to-br from-[#f8f9fa] to-[#f0f2f5] p-6 rounded-lg border border-[#c2c6d1]/20">
+                <h2 className="text-[#003461] font-bold text-2xl mb-6 text-center">Safety Metrics</h2>
+                <div className="flex flex-col items-center">
+                  {/* Status Bubble */}
+                  <div className="w-24 h-24 rounded-full bg-[#4caf50] flex items-center justify-center mb-6 shadow-md">
+                    <div className="text-2xl font-bold text-white">Safe</div>
+                  </div>
+                  
+                  {/* Scan Time */}
+                  <div className="text-center mb-3">
+                    <div className="text-sm text-[#424750] font-semibold">Last Scan Time</div>
+                    <div className="text-2xl font-bold text-[#003461] font-mono">2:32 PM</div>
+                  </div>
+                  
+                  {/* Scan Date */}
+                  <div className="text-center">
+                    <div className="text-sm text-[#424750] font-semibold">Last Scan Date</div>
+                    <div className="text-2xl font-bold text-[#003461] font-mono">10.05.2026</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Card - Placeholder */}
+              <div className="flex-1 bg-gradient-to-br from-[#f8f9fa] to-[#f0f2f5] p-6 rounded-lg border border-[#c2c6d1]/20">
+                <div className="flex items-center justify-center h-full text-[#424750]">
+                  <p className="text-center">Additional metrics coming soon...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Information */}
+          <div>
+            <h3 className="text-[#003461] font-bold text-lg mb-4">Account Information</h3>
+            <pre className="bg-[#f2f3fd] p-4 rounded-lg text-sm overflow-auto">
+              {JSON.stringify(authContext, null, 2)}
+            </pre>
           </div>
         </div>
       </main>
