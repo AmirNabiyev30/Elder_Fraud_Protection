@@ -46,13 +46,13 @@ jobs:
 
       - name: Start Flask in background
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI || 'mongodb://localhost:27017/elder_fraud_ci' }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: nohup python -u backend/run.py > flask_log.txt 2>&1 &
 
-      - name: Wait for Flask /api/health
+      - name: Wait for Flask /api/status
         run: |
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8000/api/health; then
+            if curl -fsS http://127.0.0.1:8000/api/status; then
               exit 0
             fi
             sleep 2
@@ -113,13 +113,13 @@ jobs:
 
       - name: Start Flask in background
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI || 'mongodb://localhost:27017/elder_fraud_ci' }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: nohup python -u backend/run.py > flask_log.txt 2>&1 &
 
-      - name: Wait for Flask /api/health
+      - name: Wait for Flask /api/status
         run: |
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8000/api/health; then
+            if curl -fsS http://127.0.0.1:8000/api/status; then
               exit 0
             fi
             sleep 2
