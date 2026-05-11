@@ -72,5 +72,9 @@ def analyze_text(text):
     pred_score = model.predict_proba(vectorized_text)[0][pred_label]
     return{
         "pred_label" : LABELS[pred_label],
-        "pred_score" : round(float(pred_score) * 100, 2)
+        "pred_score" : round(float(pred_score) * 100, 2),
+        "summary" : "None",
+        "red_flags":[],
+        "next_steps":"None",
+        "explanation" : "None"
     }
