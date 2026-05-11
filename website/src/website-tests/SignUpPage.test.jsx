@@ -10,6 +10,7 @@ const attemptEmailVerificationMock = vi.fn();
 const setActiveMock = vi.fn();
 const getTokenMock = vi.fn();
 const fetchAuthContextMock = vi.fn();
+const syncUserProfileMock = vi.fn();
 let isAuthLoadedMock = true;
 let isSignedInMock = false;
 
@@ -23,6 +24,7 @@ vi.mock("react-router-dom", async () => {
 
 vi.mock("../lib/authApi", () => ({
   fetchAuthContext: (...args) => fetchAuthContextMock(...args),
+  syncUserProfile: (...args) => syncUserProfileMock(...args),
 }));
 
 vi.mock("@clerk/clerk-react", () => ({
@@ -50,6 +52,7 @@ beforeEach(() => {
   setActiveMock.mockReset();
   getTokenMock.mockReset();
   fetchAuthContextMock.mockReset();
+  syncUserProfileMock.mockReset();
   isAuthLoadedMock = true;
   isSignedInMock = false;
 });
@@ -109,7 +112,7 @@ test("submits sign up and requests email verification", async () => {
   expect(await screen.findByText("Verify Email")).toBeTruthy();
 });
 
-test("completes verification and calls backend auth context", async () => {
+test("completes verification and ensures the user exists in MongoDB", async () => {
   signUpCreateMock.mockResolvedValue(undefined);
   prepareEmailVerificationMock.mockResolvedValue(undefined);
   attemptEmailVerificationMock.mockResolvedValue({
@@ -117,6 +120,7 @@ test("completes verification and calls backend auth context", async () => {
     createdSessionId: "sess_signup_1",
   });
   setActiveMock.mockResolvedValue(undefined);
+  syncUserProfileMock.mockResolvedValue({ ok: true });
   fetchAuthContextMock.mockResolvedValue({ ok: true });
 
   render(
@@ -138,6 +142,11 @@ test("completes verification and calls backend auth context", async () => {
     expect(attemptEmailVerificationMock).toHaveBeenCalledWith({ code: "123456" });
   });
   expect(setActiveMock).toHaveBeenCalledWith({ session: "sess_signup_1" });
+  expect(syncUserProfileMock).toHaveBeenCalledWith(expect.any(Function), {
+    fullName: "John Doe",
+    email: "john@example.com",
+    phone: "+1 (555) 111-2222",
+  });
   expect(fetchAuthContextMock).toHaveBeenCalledWith(expect.any(Function));
   expect(navigateMock).toHaveBeenCalledWith("/dashboard");
 });
