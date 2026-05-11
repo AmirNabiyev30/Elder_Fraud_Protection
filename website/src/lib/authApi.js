@@ -32,3 +32,10 @@ export async function syncUserProfile(getToken, userDetails) {
     body: JSON.stringify(userDetails),
   })
 }
+
+export async function scanEmail(getToken, text) {
+  return fetchWithClerkToken('/api/scan', getToken, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  })
+}
