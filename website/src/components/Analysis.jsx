@@ -1,5 +1,22 @@
 // src/components/AnalysisResults.jsx
 
+const exampleAnalysis = {
+  pred_label: "phishing",
+  pred_score: 94.7,
+  summary: "This email shows strong indicators of a scam attempt.",
+  red_flags: [
+    "Urgent call to action asking you to respond immediately.",
+    "A suspicious verification link that does not clearly match a trusted official website.",
+  ],
+  next_steps: [
+    "Do not click links or open attachments in the message.",
+    "Visit the institution's official website directly instead of using the email link.",
+    "Contact the organization with a trusted phone number if the message seems important.",
+  ],
+  explanation:
+    "This sample analysis highlights how scam emails often create panic, ask you to verify account information quickly, and steer you toward suspicious links or money requests.",
+};
+
 const severityMap = {
   phishing: {
     title: "High Risk: Phishing",
@@ -35,10 +52,6 @@ function toHeadline(flag, index) {
 }
 
 export default function AnalysisResults({ analysisResult }) {
-  if (!analysisResult) {
-    return null;
-  }
-
   const {
     pred_label: predLabel,
     pred_score: predScore,
@@ -46,7 +59,7 @@ export default function AnalysisResults({ analysisResult }) {
     red_flags: redFlags = [],
     next_steps: nextSteps = [],
     explanation,
-  } = analysisResult;
+  } = analysisResult || exampleAnalysis;
   const severity = severityMap[predLabel] || severityMap.spam;
   const riskFactors = [
     { label: "Classifier Label", value: predLabel },
