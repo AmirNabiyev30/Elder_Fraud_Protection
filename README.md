@@ -32,6 +32,33 @@ The main users are intended to be for elderly people however it can be used by a
 -Protect people from fraud attempts
 -Educate people on how to detect fraud attempts
 
+## Render Deployment
+
+This repo is set up for Render to host the backend API defined in [render.yaml](/Users/amirnabiyev/Elder_Fraud_Protection/render.yaml).
+The frontend can be deployed separately on Vercel.
+
+### Backend service settings
+
+- Root directory: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn wsgi:app --bind 0.0.0.0:$PORT`
+- Health check path: `/api/status`
+
+### Required Render environment variables
+
+Backend:
+
+- `MONGO_URI`
+- `CLERK_JWKS_URL`
+- `CLERK_ISSUER`
+- `CLERK_AUDIENCE` if used by your Clerk token config
+- `OPENAI_API_KEY`
+
+### Important deployment note
+
+Set the frontend environment variable `VITE_API_BASE_URL` in Vercel to the public Render URL of the backend service, for example:
+
+`https://elder-fraud-api.onrender.com`
+
 
   
-
