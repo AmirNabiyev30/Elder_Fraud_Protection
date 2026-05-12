@@ -77,10 +77,15 @@ function DashboardPage() {
       setDashboardError("");
 
       try {
+        const token = await getToken();
+        if (!token) {
+          throw new Error("Unable to authenticate your session.");
+        }
+
         const [authResponse, profileResponse, scansResponse] = await Promise.all([
-          fetchAuthContext(getToken),
-          fetchCurrentUserProfile(getToken),
-          fetchRecentScans(getToken),
+          fetchAuthContext(token),
+          fetchCurrentUserProfile(token),
+          fetchRecentScans(token),
         ]);
         const [authData, profileData, scansData] = await Promise.all([
           authResponse.json(),
@@ -102,8 +107,8 @@ function DashboardPage() {
         setUserProfile(profileData.user);
         setRecentScans(scansData.scans || []);
         setScanStats(scansData.stats || null);
-      } catch {
-        setDashboardError("Unable to load your dashboard right now.");
+      } catch (error) {
+        setDashboardError(error.message || "Unable to load your dashboard right now.");
       } finally {
         setIsLoadingDashboard(false);
       }
