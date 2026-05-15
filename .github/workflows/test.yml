@@ -19,6 +19,16 @@ jobs:
     name: Jest (${{ matrix.node-version }}) + Flask
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -46,7 +56,7 @@ jobs:
 
       - name: Start Flask in background
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_URI: mongodb://127.0.0.1:27017/elder_fraud_test
         run: nohup python -u backend/run.py > flask_log.txt 2>&1 &
 
       - name: Wait for Flask /api/status
@@ -64,7 +74,7 @@ jobs:
       - name: Unit and integration tests with coverage
         env:
           FLASK_URL: http://127.0.0.1:8000
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_URI: mongodb://127.0.0.1:27017/elder_fraud_test
         run: npm run test:coverage
 
       - name: Upload coverage report
@@ -87,6 +97,16 @@ jobs:
     name: Playwright E2E
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -113,7 +133,7 @@ jobs:
 
       - name: Start Flask in background
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_URI: mongodb://127.0.0.1:27017/elder_fraud_test
         run: nohup python -u backend/run.py > flask_log.txt 2>&1 &
 
       - name: Wait for Flask /api/status
