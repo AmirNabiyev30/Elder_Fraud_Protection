@@ -112,7 +112,7 @@ test("submits sign up and requests email verification", async () => {
   expect(await screen.findByText("Verify Email")).toBeTruthy();
 });
 
-test("completes verification and calls backend auth context", async () => {
+test("completes verification and ensures the user exists in MongoDB", async () => {
   signUpCreateMock.mockResolvedValue(undefined);
   prepareEmailVerificationMock.mockResolvedValue(undefined);
   attemptEmailVerificationMock.mockResolvedValue({

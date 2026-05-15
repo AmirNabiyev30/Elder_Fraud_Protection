@@ -33,8 +33,7 @@ mainBtn.addEventListener("click", () => {
           }
           results.textContent = "Scanning...";
 
-           // Send the email text to the Flask backend
-        fetch('http://127.0.0.1:5000/api/scan', {
+        fetch('http://127.0.0.1:8000/api/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: response.text })

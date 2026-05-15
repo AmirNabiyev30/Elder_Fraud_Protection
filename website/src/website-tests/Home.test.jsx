@@ -7,6 +7,24 @@ const getTokenMock = vi.fn();
 const scanEmailMock = vi.fn();
 let isAuthLoadedMock = true;
 let isSignedInMock = true;
+const localStorageValues = new Map();
+const localStorageMock = {
+  getItem: vi.fn((key) => localStorageValues.get(key) ?? null),
+  setItem: vi.fn((key, value) => {
+    localStorageValues.set(key, String(value));
+  }),
+  removeItem: vi.fn((key) => {
+    localStorageValues.delete(key);
+  }),
+  clear: vi.fn(() => {
+    localStorageValues.clear();
+  }),
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+  configurable: true,
+});
 
 vi.mock("@clerk/clerk-react", () => ({
   useAuth: () => ({
@@ -26,6 +44,10 @@ beforeEach(() => {
   isAuthLoadedMock = true;
   isSignedInMock = true;
   window.localStorage.clear();
+  localStorageMock.getItem.mockClear();
+  localStorageMock.setItem.mockClear();
+  localStorageMock.removeItem.mockClear();
+  localStorageMock.clear.mockClear();
 });
 
 function renderHome() {
