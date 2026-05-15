@@ -22,6 +22,18 @@ class ScanEndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json(), {"error": "Email text is empty"})
 
+    def test_scan_returns_503_when_classifier_is_unavailable(self):
+        with patch("backend.app.api.analyze_text", return_value={
+            "error": "Model not available - dataset missing",
+        }):
+            response = self.client.post("/api/scan", json={"text": "hello"})
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.get_json(),
+            {"error": "Model not available - dataset missing"},
+        )
+
     def test_scan_saves_result_when_database_write_succeeds(self):
         scans_collection_mock = MagicMock()
         cluster_mock = MagicMock()
@@ -41,6 +53,36 @@ class ScanEndpointTests(unittest.TestCase):
         self.assertNotIn("save_error", data)
 
         scans_collection_mock.insert_one.assert_called_once()
+
+    @patch("backend.app.auth._verify_token")
+    def test_scan_saves_clerk_user_id_when_authenticated(self, verify_token_mock):
+        verify_token_mock.return_value = (
+            {"sub": "user_123", "sid": "sess_123", "iss": "issuer_123"},
+            None,
+        )
+        scans_collection_mock = MagicMock()
+        cluster_mock = MagicMock()
+        cluster_mock.__getitem__.return_value = {"scans": scans_collection_mock}
+
+        with patch("backend.app.api.analyze_text", return_value={
+            "pred_label": "phishing",
+            "pred_score": 98.5,
+            "summary": "summary",
+            "red_flags": [],
+            "next_steps": [],
+            "explanation": "explanation",
+            "ai_used": False,
+            "ai_error": None,
+        }), patch.object(api.mongo, "cx", cluster_mock):
+            response = self.client.post(
+                "/api/scan",
+                json={"text": "urgent transfer request"},
+                headers={"Authorization": "Bearer valid_token"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        insert_payload = scans_collection_mock.insert_one.call_args.args[0]
+        self.assertEqual(insert_payload["clerk_user_id"], "user_123")
 
     def test_scan_returns_result_when_database_write_fails(self):
         scans_collection_mock = MagicMock()
