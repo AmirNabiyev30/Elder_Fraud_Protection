@@ -23,5 +23,14 @@
     "background":{
       "service_worker":"background.js"
     },
-    "permissions":["activeTab","scripting","tabs"]
+    "commands": {
+      "scan-current-page": {
+        "suggested_key": {
+          "default": "Alt+Shift+S",
+          "mac": "Alt+Shift+S"
+        },
+        "description": "Scan the current page"
+      }
+    },
+    "permissions":["activeTab","scripting","tabs","notifications"]
   }
